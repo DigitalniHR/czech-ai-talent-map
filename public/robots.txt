@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://www.digitalnihr.cz/ai-talent-mapa/sitemap.xml

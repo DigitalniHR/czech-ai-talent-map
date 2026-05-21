@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+
+<title>Mapa českého AI talentu — interaktivní přehled 4 468 odborníků | DigitálníHR</title>
+<meta name="description" content="Interaktivní mapa 4 468 AI a ML profesionálů v České republice. Prozkoumejte top 40 technologií, AI specializace, klíčové zaměstnavatele a kalkulačku dostupného talentu. Data pro nábor, sourcing a personální plánování." />
+<meta name="keywords" content="AI talent Česko, machine learning Praha, AI nábor, sourcing AI specialistů, mapa AI specialistů, AI odborníci ČR, AI/ML kandidáti, datový recruitment, DigitálníHR" />
+<meta name="author" content="DigitálníHR" />
+<meta name="robots" content="index, follow, max-image-preview:large" />
+<meta name="theme-color" content="#050d0c" />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23050d0c' rx='6'/%3E%3Ccircle cx='16' cy='16' r='8' fill='%233dd8c4'/%3E%3C/svg%3E" />
+
+<link rel="canonical" href="https://www.digitalnihr.cz/ai-talent-mapa" />
+
+<!-- Open Graph (Facebook, LinkedIn) -->
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://www.digitalnihr.cz/ai-talent-mapa" />
+<meta property="og:title" content="Mapa českého AI talentu — interaktivní přehled 4 468 odborníků" />
+<meta property="og:description" content="Která technologie spojuje nejvíc českých AI inženýrů? Kolik seniorů s LLM zkušeností hledá příležitost v Praze? Interaktivní datová mapa AI/ML trhu v ČR." />
+<meta property="og:locale" content="cs_CZ" />
+<meta property="og:site_name" content="DigitálníHR" />
+<meta property="og:image" content="https://www.digitalnihr.cz/ai-talent-mapa/og-image.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Mapa českého AI talentu — vizualizace 4 468 profesionálů jako bublin, velikost odpovídá rozšíření technologie." />
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Mapa českého AI talentu — 4 468 odborníků na jedné obrazovce" />
+<meta name="twitter:description" content="Interaktivní mapa AI/ML trhu v ČR. Top 40 technologií, AI specializace, kalkulačka talentu." />
+<meta name="twitter:image" content="https://www.digitalnihr.cz/ai-talent-mapa/og-image.png" />
+
+<!-- Structured data — Dataset + WebApplication -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "name": "Mapa českého AI talentu",
+      "alternateName": "Czech AI Talent Map",
+      "url": "https://www.digitalnihr.cz/ai-talent-mapa",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CZK" },
+      "creator": {
+        "@type": "Organization",
+        "name": "DigitálníHR",
+        "url": "https://www.digitalnihr.cz"
+      },
+      "inLanguage": "cs-CZ"
+    },
+    {
+      "@type": "Dataset",
+      "name": "Mapa českého AI a ML trhu — snapshot 2026",
+      "description": "Anonymizovaná data o 4 468 AI/ML profesionálech v České republice: rozložení technologií, AI specializací, seniority a lokalit.",
+      "creator": { "@type": "Organization", "name": "DigitálníHR" },
+      "license": "https://www.digitalnihr.cz",
+      "spatialCoverage": { "@type": "Place", "name": "Česká republika" },
+      "keywords": ["AI", "machine learning", "talent", "Czech Republic", "Python", "LLM", "data science"],
+      "inLanguage": "cs"
+    }
+  ]
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<style>
+  :root {
+    --bg: #050d0c;
+    --surface: #0a1716;
+    --surface-2: #0f2120;
+    --border: #1a2d2a;
+    --text: #ffffff;
+    --muted: #8b9690;
+    --accent: #3dd8c4;
+    --accent-hover: #5ee8d5;
+    --accent-soft: rgba(61,216,196,.14);
+    --accent-strong: rgba(61,216,196,.28);
+    --accent-ink: #050d0c;
+    /* Domain barvy — kategorické indikátory, posunuté tak, aby se brand-tinted
+       NLP doména držela rodiny accent, ostatní zůstávají odlišitelné. */
+    --nlp: #3dd8c4;     /* mint — sjednoceno s brandem (NLP/LLM je dominantní) */
+    --cv: #6fe88b;      /* mírnější zelená než brand */
+    --gen: #c79bff;
+    --ml: #f0c14a;
+    --robot: #ff6b6b;
+    --general: #5d6b69;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    height: 100%; overflow: hidden;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; }
+
+  /* Layout */
+  .app { display: flex; flex-direction: column; height: 100vh; }
+  header {
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    display: flex; align-items: center; gap: 24px;
+  }
+  header .brand {
+    font-weight: 700; font-size: 15px; letter-spacing: -.01em;
+  }
+  header .brand .accent { color: var(--accent); }
+  header nav { display: flex; gap: 6px; margin-left: auto; }
+  header nav button {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--muted); padding: 6px 14px; border-radius: 6px;
+    font-size: 13px; font-weight: 500;
+    transition: all .15s;
+  }
+  header nav button:hover { color: var(--text); border-color: var(--accent); }
+  header nav button.active {
+    background: var(--accent-soft); border-color: var(--accent);
+    color: var(--accent);
+  }
+  header .stats {
+    margin-left: auto; font-size: 12px; color: var(--muted);
+  }
+  header .stats b { color: var(--text); font-weight: 600; }
+  header .header-toggles {
+    display: flex; gap: 16px; align-items: center; margin-left: 22px;
+  }
+  .toggle-group {
+    display: flex; gap: 4px; align-items: center;
+    background: var(--surface-2); border: 1px solid var(--border);
+    padding: 3px; border-radius: 999px;
+  }
+  .toggle-group .toggle-label {
+    font-size: 11px; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .06em;
+    padding: 0 8px 0 10px;
+  }
+  .toggle-group button {
+    background: transparent; border: none; cursor: pointer;
+    padding: 4px 12px; border-radius: 999px;
+    font-size: 12px; font-weight: 500; color: var(--muted);
+    font-family: inherit;
+    transition: all .15s;
+  }
+  .toggle-group button:hover { color: var(--text); }
+  .toggle-group button.active {
+    background: var(--accent); color: var(--accent-ink);
+  }
+
+  main { flex: 1; display: flex; min-height: 0; }
+  aside.sidebar {
+    width: 280px; flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto; padding: 16px;
+  }
+  .panel-title {
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .08em; color: var(--muted);
+    margin: 0 0 10px 0;
+  }
+  .panel-title:not(:first-child) { margin-top: 22px; }
+
+  /* Domain chips */
+  .domain-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .domain-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface-2); border: 1px solid var(--border);
+    padding: 5px 10px; border-radius: 999px;
+    font-size: 12px; color: var(--text);
+    cursor: pointer; user-select: none;
+    transition: all .15s;
+  }
+  .domain-chip .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+  .domain-chip.off { opacity: .35; }
+  .domain-chip:hover { border-color: var(--accent); }
+
+  /* Detail panel */
+  #detailPanel {
+    display: none;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+  #detailPanel.show { display: block; }
+  .detail-name { font-size: 18px; font-weight: 700; margin: 0 0 2px 0; }
+  .detail-count { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+  .breakdown { margin-bottom: 16px; }
+  .breakdown-title {
+    font-size: 11px; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px;
+  }
+  .bar-row {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; margin-bottom: 4px;
+  }
+  .bar-row .label { flex-shrink: 0; min-width: 90px; color: var(--muted); }
+  .bar-row .bar-bg { flex: 1; height: 8px; background: var(--surface-2); border-radius: 4px; overflow: hidden; }
+  .bar-row .bar-fill { height: 100%; transition: width .3s; }
+  .bar-row .val { flex-shrink: 0; min-width: 32px; text-align: right; color: var(--text); font-variant-numeric: tabular-nums; }
+  .company-row { display: flex; justify-content: space-between; font-size: 12px; padding: 3px 0; color: var(--text); }
+  .company-row .count { color: var(--muted); }
+  .cooc-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .cooc-tag {
+    background: var(--surface-2); border: 1px solid var(--border);
+    padding: 4px 9px; border-radius: 4px;
+    font-size: 11px; cursor: pointer;
+    transition: all .15s;
+  }
+  .cooc-tag:hover { border-color: var(--accent); color: var(--accent); }
+  .cooc-tag .v { color: var(--muted); margin-left: 4px; }
+
+  /* Canvas */
+  .canvas-wrap { flex: 1; position: relative; min-width: 0; }
+  svg.bubbles { width: 100%; height: 100%; display: block; cursor: default; }
+  .tooltip {
+    position: absolute; pointer-events: none;
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 8px 12px; border-radius: 6px;
+    font-size: 12px; color: var(--text);
+    box-shadow: 0 4px 16px rgba(0,0,0,.4);
+    opacity: 0; transition: opacity .12s;
+    z-index: 100; white-space: nowrap;
+  }
+  .tooltip.show { opacity: 1; }
+  .tooltip .name { font-weight: 600; }
+  .tooltip .meta { color: var(--muted); margin-top: 2px; font-size: 11px; }
+  .bubble-label {
+    pointer-events: none; user-select: none;
+    fill: var(--text); font-weight: 500;
+    text-anchor: middle; dominant-baseline: middle;
+  }
+  .hint {
+    position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 6px 14px; border-radius: 999px;
+    font-size: 12px; color: var(--muted);
+    pointer-events: none;
+  }
+
+  /* Calculator */
+  .calculator {
+    flex: 1; overflow-y: auto;
+    padding: 32px; max-width: 760px; margin: 0 auto; width: 100%;
+  }
+  .calc-title { font-size: 24px; font-weight: 700; margin: 0 0 4px 0; }
+  .calc-sub { color: var(--muted); margin: 0 0 28px 0; font-size: 14px; }
+  .calc-section { margin-bottom: 22px; }
+  .calc-section h3 {
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .08em; color: var(--muted);
+    margin: 0 0 10px 0;
+  }
+  .skill-pickers { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .skill-pickers .picked {
+    background: var(--accent-soft); border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 5px 10px; border-radius: 6px; font-size: 13px;
+    display: inline-flex; gap: 6px; align-items: center;
+  }
+  .skill-pickers .picked .x {
+    cursor: pointer; opacity: .7; font-weight: 700;
+  }
+  .skill-pickers .picked .x:hover { opacity: 1; }
+  .skill-pickers select {
+    background: var(--surface-2); color: var(--text);
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 5px 10px; font-size: 13px;
+    font-family: inherit; cursor: pointer;
+  }
+  .toggle-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .toggle-chip {
+    background: var(--surface-2); border: 1px solid var(--border);
+    color: var(--text); padding: 6px 13px; border-radius: 6px;
+    font-size: 13px; cursor: pointer;
+    transition: all .15s; user-select: none;
+  }
+  .toggle-chip.active {
+    background: var(--accent-soft); border-color: var(--accent); color: var(--accent);
+  }
+  .toggle-chip:hover { border-color: var(--accent); }
+  .logic-toggle { display: flex; gap: 4px; align-items: center; font-size: 13px; color: var(--muted); margin-top: 6px; }
+  .logic-toggle label { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+
+  .result-card {
+    margin: 30px 0 20px 0; padding: 32px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; text-align: center;
+  }
+  .result-number {
+    font-size: 56px; font-weight: 700; color: var(--accent);
+    line-height: 1; margin-bottom: 6px;
+    font-variant-numeric: tabular-nums;
+  }
+  .result-label { color: var(--muted); font-size: 14px; }
+  .cta-btn {
+    display: inline-block; padding: 14px 32px;
+    background: var(--accent); color: var(--accent-ink);
+    border: none; border-radius: 999px;
+    font-weight: 600; font-size: 15px;
+    text-decoration: none;
+    transition: background .15s, transform .15s;
+  }
+  .cta-btn:hover { background: var(--accent-hover); transform: translateY(-1px); }
+  .cta-secondary {
+    display: inline-block; padding: 14px 32px;
+    background: transparent; color: var(--accent);
+    border: 1.5px solid var(--accent); border-radius: 999px;
+    font-weight: 600; font-size: 15px;
+    text-decoration: none;
+    margin-left: 12px;
+    transition: background .15s;
+  }
+  .cta-secondary:hover { background: var(--accent-soft); }
+
+  .footer-meta {
+    padding: 10px 24px; background: var(--surface);
+    border-top: 1px solid var(--border);
+    font-size: 11px; color: var(--muted); text-align: right;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">Mapa českého <span class="accent">AI talentu</span></div>
+    <nav>
+      <button id="navMap" class="active">Mapa</button>
+      <button id="navCalc">Kalkulačka</button>
+    </nav>
+    <div class="header-toggles">
+      <div class="toggle-group" id="populationToggle">
+        <span class="toggle-label">Populace:</span>
+        <button data-dataset="all" class="active" title="Všichni AI/ML profesionálové (core + adjacent role)">Všichni</button>
+        <button data-dataset="engineers" title="Skuteční AI/ML inženýři a data tým (core_aiml + data segment)">AI inženýři</button>
+        <button data-dataset="adjacent" title="Produktoví, výzkumní, AI-aware role bez engineeringu">Adjacent role</button>
+      </div>
+      <div class="toggle-group" id="scopeToggle">
+        <span class="toggle-label">Zobrazit:</span>
+        <button data-scope="all" class="active" title="Core AI + adjacent technologie">Vše</button>
+        <button data-scope="core" title="Jen core AI tooling a koncepty (PyTorch, RAG, LLM…)">Jen AI</button>
+      </div>
+    </div>
+    <div class="stats" id="headerStats">načítám…</div>
+  </header>
+
+  <main>
+    <!-- Sidebar — used only on Map view -->
+    <aside class="sidebar" id="sidebar">
+      <h2 class="panel-title">AI obory</h2>
+      <div class="domain-chips" id="domainChips"></div>
+
+      <div id="detailPanel">
+        <h3 class="detail-name" id="detailName">—</h3>
+        <div class="detail-count" id="detailCount">—</div>
+
+        <div class="breakdown">
+          <div class="breakdown-title">Rozložení podle AI oborů</div>
+          <div id="domainBars"></div>
+        </div>
+
+        <div class="breakdown">
+          <div class="breakdown-title">Role</div>
+          <div id="roleBars"></div>
+        </div>
+
+        <div class="breakdown">
+          <div class="breakdown-title">Top zaměstnavatelé</div>
+          <div id="companyList"></div>
+        </div>
+
+        <div class="breakdown">
+          <div class="breakdown-title">Často kombinováno s</div>
+          <div class="cooc-tags" id="coocTags"></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Canvas area: either bubbles or calculator -->
+    <div class="canvas-wrap" id="canvasWrap">
+      <svg class="bubbles" id="bubbles" aria-label="Mapa technologií jako bublin"></svg>
+      <div class="tooltip" id="tooltip"></div>
+      <div class="hint" id="hint">Klikni na bublinu pro detail technologie</div>
+    </div>
+
+    <!-- Calculator (hidden by default) -->
+    <div class="calculator" id="calculator" style="display: none;">
+      <h1 class="calc-title">Kalkulačka talentů</h1>
+      <p class="calc-sub">Kolik českých AI profesionálů odpovídá vašim kritériím?</p>
+
+      <div class="calc-section">
+        <h3>Dovednosti / Technologie</h3>
+        <div class="skill-pickers" id="skillPickers">
+          <select id="skillSelect" aria-label="Přidat dovednost">
+            <option value="">+ Přidat dovednost…</option>
+          </select>
+        </div>
+        <div class="logic-toggle">
+          <label><input type="radio" name="logic" value="any" checked /> Alespoň jednu</label>
+          <label><input type="radio" name="logic" value="all" /> Všechny</label>
+        </div>
+      </div>
+
+      <div class="calc-section">
+        <h3>Seniorita</h3>
+        <div class="toggle-row" id="seniorityChips"></div>
+      </div>
+
+      <div class="calc-section">
+        <h3>Lokalita</h3>
+        <div class="toggle-row" id="locationChips"></div>
+      </div>
+
+      <div class="result-card">
+        <div class="result-number" id="resultCount">0</div>
+        <div class="result-label">profesionálů v databázi</div>
+      </div>
+
+      <div style="text-align: center;">
+        <a href="mailto:matej@aplayerz.io?subject=Pozadavek%20na%20AI%20talent" class="cta-btn" id="ctaBtn">
+          Domluvit konzultaci →
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <div class="footer-meta" id="footerMeta">—</div>
+</div>
+
+<noscript>
+  <div style="padding: 40px; max-width: 720px; margin: 0 auto; color: #fff; font-family: sans-serif;">
+    <h1>Mapa českého AI talentu</h1>
+    <p>Tato vizualizace vyžaduje povolený JavaScript. Bez něj nemůžeme načíst data o 4 468 AI a ML profesionálech v České republice.</p>
+    <p>Pro přístup ke kompletní studii a sourcing službám navštivte <a href="https://www.digitalnihr.cz">digitalnihr.cz</a>.</p>
+  </div>
+</noscript>
+
+<script>
+"use strict";
+
+const DOMAIN_COLORS = {
+  "NLP / LLM": "var(--nlp)",
+  "Computer Vision": "var(--cv)",
+  "Generative AI": "var(--gen)",
+  "Classic ML": "var(--ml)",
+  "Robotics": "var(--robot)",
+  "General": "var(--general)",
+};
+const DOMAIN_ORDER = [
+  "NLP / LLM", "Computer Vision", "Generative AI",
+  "Classic ML", "Robotics", "General",
+];
+// Seniority chip labely (DB hodnota = identita, EN — universal tech term)
+const SENIORITY_ORDER = ["Junior", "Mid", "Senior", "Lead", "C-level"];
+// Lokality: label (CZ) → DB hodnota (EN, z pipeline people_vectors)
+const LOCATIONS = [
+  { label: "Praha",      value: "Prague" },
+  { label: "Brno",       value: "Brno" },
+  { label: "Ostrava",    value: "Ostrava" },
+  { label: "Vzdáleně",   value: "Remote" },
+  { label: "V zahraničí", value: "Abroad" },
+];
+// Český formátovač čísel (tisícové mezery)
+const CZ_NUM = new Intl.NumberFormat("cs-CZ");
+
+let DATA = null;
+let TECH_BY_ID = new Map();
+let COOC_INDEX = new Map();  // techId → [{partner, value}]
+let activeDomains = new Set(DOMAIN_ORDER);
+let selectedTechId = null;
+let simulation = null;
+let nodesData = [];
+
+// Stav toggles
+const VIEW = {
+  dataset: "all",       // 'all' | 'engineers' | 'adjacent'
+  scope: "all",         // 'all' (core+adjacent) | 'core'
+};
+const DATASET_FILES = {
+  all: "data.json",
+  engineers: "data_engineers.json",
+  adjacent: "data_adjacent.json",
+};
+
+const svg = d3.select("#bubbles");
+const tooltip = d3.select("#tooltip");
+const hint = d3.select("#hint");
+
+// ------------------------------------------------------------------
+// BOOT
+// ------------------------------------------------------------------
+async function init() {
+  await loadDataset(VIEW.dataset);
+  renderDomainChips();
+  setupSimulation();
+  setupNav();
+  setupToggles();
+  setupCalculator();
+  window.addEventListener("resize", debounce(onResize, 150));
+}
+
+async function loadDataset(name) {
+  const file = DATASET_FILES[name] || DATASET_FILES.all;
+  try {
+    DATA = await d3.json(file);
+  } catch (e) {
+    document.body.innerHTML = `<div style="padding:40px;color:#ff6b6b;font-family:Inter,sans-serif">Data se nepodařilo načíst. Pokud problém přetrvává, kontaktujte <a href="mailto:matej@aplayerz.io" style="color:#3dd8c4">matej@aplayerz.io</a>.</div>`;
+    console.error(e);
+    throw e;
+  }
+  TECH_BY_ID = new Map(DATA.technologies.map(t => [t.id, t]));
+  COOC_INDEX = buildCoocIndex(DATA.cooccurrence);
+  document.getElementById("headerStats").innerHTML =
+    `<b>${CZ_NUM.format(DATA.stats.total_professionals)}</b> profesionálů · <b>${CZ_NUM.format(DATA.stats.total_companies)}</b> firem`;
+  document.getElementById("footerMeta").textContent =
+    `Snímek dat ${DATA.stats.generated_at.slice(0,10)} · top ${DATA.stats.skills_in_top} technologií · práh společného výskytu ${DATA.stats.cooccurrence_threshold} · populace „${DATA.stats.dataset_label}"`;
+}
+
+function setupToggles() {
+  // Populace
+  document.querySelectorAll("#populationToggle button").forEach(b => {
+    b.addEventListener("click", async () => {
+      const ds = b.dataset.dataset;
+      if (ds === VIEW.dataset) return;
+      VIEW.dataset = ds;
+      document.querySelectorAll("#populationToggle button").forEach(x => x.classList.toggle("active", x.dataset.dataset === ds));
+      await loadDataset(ds);
+      rebuildMap();
+      setupCalculator();
+    });
+  });
+  // Skill scope
+  document.querySelectorAll("#scopeToggle button").forEach(b => {
+    b.addEventListener("click", () => {
+      const sc = b.dataset.scope;
+      if (sc === VIEW.scope) return;
+      VIEW.scope = sc;
+      document.querySelectorAll("#scopeToggle button").forEach(x => x.classList.toggle("active", x.dataset.scope === sc));
+      rebuildMap();
+    });
+  });
+}
+
+function visibleTechs() {
+  if (VIEW.scope === "core") return DATA.technologies.filter(t => t.category === "core");
+  return DATA.technologies;
+}
+
+function rebuildMap() {
+  selectedTechId = null;
+  document.getElementById("detailPanel").classList.remove("show");
+  hint.text("Klikni na bublinu pro detail technologie");
+  setupSimulation(true);
+}
+
+function buildCoocIndex(cooc) {
+  const idx = new Map();
+  for (const c of cooc) {
+    if (!idx.has(c.source)) idx.set(c.source, []);
+    if (!idx.has(c.target)) idx.set(c.target, []);
+    idx.get(c.source).push({ partner: c.target, value: c.value });
+    idx.get(c.target).push({ partner: c.source, value: c.value });
+  }
+  for (const arr of idx.values()) arr.sort((a, b) => b.value - a.value);
+  return idx;
+}
+
+// ------------------------------------------------------------------
+// DOMAIN CHIPS
+// ------------------------------------------------------------------
+function renderDomainChips() {
+  const wrap = d3.select("#domainChips");
+  wrap.selectAll("*").remove();
+  for (const d of DOMAIN_ORDER) {
+    const chip = wrap.append("div")
+      .attr("class", "domain-chip")
+      .on("click", () => toggleDomain(d));
+    chip.append("span").attr("class", "dot").style("background", DOMAIN_COLORS[d]);
+    chip.append("span").text(d);
+  }
+  updateDomainChipStyles();
+}
+
+function toggleDomain(d) {
+  if (activeDomains.has(d)) activeDomains.delete(d);
+  else activeDomains.add(d);
+  updateDomainChipStyles();
+  applyDomainFilter();
+}
+
+function updateDomainChipStyles() {
+  d3.selectAll("#domainChips .domain-chip")
+    .classed("off", d => false)
+    .nodes().forEach(node => {
+      const label = node.querySelector("span:nth-child(2)").textContent;
+      node.classList.toggle("off", !activeDomains.has(label));
+    });
+}
+
+function applyDomainFilter() {
+  svg.selectAll(".bubble-group")
+    .transition().duration(300)
+    .style("opacity", d => activeDomains.has(d.top_domain) ? 1 : 0.15);
+}
+
+// ------------------------------------------------------------------
+// FORCE SIMULATION (TALENT MAP)
+// ------------------------------------------------------------------
+function setupSimulation(isRebuild = false) {
+  const { width, height } = canvasSize();
+  const techs = visibleTechs();
+  const maxCount = d3.max(techs, t => t.count) || 1;
+
+  if (isRebuild && simulation) {
+    simulation.stop();
+    svg.selectAll(".bubble-group").remove();
+  }
+
+  nodesData = techs.map(t => {
+    const r = 8 + Math.sqrt(t.count / maxCount) * 44;
+    return { ...t, r, r_base: r, r_active: r };
+  });
+
+  // Initial positions: gentle scatter
+  nodesData.forEach(d => {
+    d.x = width / 2 + (Math.random() - 0.5) * width * 0.6;
+    d.y = height / 2 + (Math.random() - 0.5) * height * 0.6;
+  });
+
+  simulation = d3.forceSimulation(nodesData)
+    .force("charge", d3.forceManyBody().strength(-30))
+    .force("center", d3.forceCenter(width / 2, height / 2).strength(0.04))
+    .force("collide", d3.forceCollide().radius(d => d.r_active + 3).iterations(2))
+    .alpha(0.7)
+    .alphaDecay(0.02)
+    .on("tick", tick);
+
+  draw();
+}
+
+function draw() {
+  const groups = svg.selectAll(".bubble-group")
+    .data(nodesData, d => d.id)
+    .join(enter => {
+      const g = enter.append("g")
+        .attr("class", "bubble-group")
+        .style("cursor", "pointer")
+        .on("click", (e, d) => { e.stopPropagation(); selectTech(d.id); })
+        .on("mouseenter", (e, d) => showTooltip(e, d))
+        .on("mousemove", e => moveTooltip(e))
+        .on("mouseleave", () => hideTooltip())
+        .call(d3.drag()
+          .on("start", (e, d) => {
+            if (!e.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x; d.fy = d.y;
+          })
+          .on("drag", (e, d) => { d.fx = e.x; d.fy = e.y; })
+          .on("end", (e, d) => {
+            if (!e.active) simulation.alphaTarget(0);
+            if (selectedTechId !== d.id) { d.fx = null; d.fy = null; }
+          })
+        );
+      g.append("circle")
+        .attr("stroke", "rgba(255,255,255,0.08)")
+        .attr("stroke-width", 1)
+        .attr("class", "bubble-circle");
+      g.append("text")
+        .attr("class", "bubble-label");
+      return g;
+    });
+
+  groups.select("circle")
+    .attr("r", d => d.r_active)
+    .attr("fill", d => DOMAIN_COLORS[d.top_domain]);
+
+  groups.select("text")
+    .attr("font-size", d => Math.max(10, Math.min(d.r_active * 0.32, 14)))
+    .text(d => d.r_active > 16 ? d.id : "");
+
+  // Click outside → exit constellation
+  svg.on("click", () => exitConstellation());
+}
+
+function tick() {
+  svg.selectAll(".bubble-group")
+    .attr("transform", d => `translate(${d.x},${d.y})`);
+}
+
+// Reálné co-occurrence z people_vectors: pro každého člověka, který má `id`,
+// projdi ostatní jeho skills a inkrementuj counter. Žádný pipeline threshold.
+function computeRealCooccurrence(id) {
+  const partners = new Map();
+  let cohort = 0;
+  for (const v of DATA.people_vectors) {
+    if (!v.skills.includes(id)) continue;
+    cohort++;
+    for (const s of v.skills) {
+      if (s === id) continue;
+      partners.set(s, (partners.get(s) || 0) + 1);
+    }
+  }
+  return { partners, cohort };
+}
+
+function selectTech(id) {
+  selectedTechId = id;
+  const { width, height } = canvasSize();
+  const tech = TECH_BY_ID.get(id);
+
+  // Filtr: skills lidí, kteří mají vybranou tech. Pro vzácné skill chceme
+  // nižší absolutní threshold (jinak většina mapy zmizí); relativně držíme
+  // alespoň 5 % vybrané kohorty, ale nikdy ne víc než 15 a ne méně než 3.
+  const { partners: partnerMap, cohort } = computeRealCooccurrence(id);
+  const threshold = Math.max(3, Math.min(15, Math.ceil(cohort * 0.05)));
+  const maxShared = Math.max(...partnerMap.values(), 1);
+
+  // Velikost bubliny v constellation = jak velká část vybrané kohorty má tu
+  // skill. Pivot (vybraná tech) má maximum. Skill pod thresholdem zmizí.
+  // Partner max je sqrt(maxShared/cohort) — vždy ≤1; pivot dostane vždy větší
+  // velikost než max partner, aby byl zjevně v centru pozornosti.
+  const maxPartnerR = 8 + Math.sqrt(maxShared / cohort) * 44;
+  const pivotR = Math.max(58, maxPartnerR + 14);
+  nodesData.forEach(n => {
+    if (n.id === id) {
+      n.r_active = pivotR;
+      n.fx = width / 2; n.fy = height / 2;
+    } else {
+      const shared = partnerMap.get(n.id) || 0;
+      if (shared < threshold) {
+        n.r_active = 0;
+        n.fx = null; n.fy = null;
+      } else {
+        n.r_active = 8 + Math.sqrt(shared / cohort) * 44;
+        n.fx = null; n.fy = null;
+      }
+    }
+  });
+
+  svg.selectAll(".bubble-group .bubble-circle")
+    .transition().duration(500)
+    .attr("r", d => d.r_active)
+    .attr("stroke", d => d.id === id ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.08)")
+    .attr("stroke-width", d => d.id === id ? 2 : 1);
+  svg.selectAll(".bubble-group text")
+    .transition().duration(500)
+    .attr("font-size", d => d.id === id ? 16 : Math.max(10, Math.min(d.r_active * 0.32, 14)))
+    .attr("font-weight", d => d.id === id ? 700 : 500)
+    .text(d => d.r_active > 16 ? d.id : "");
+
+  // Collision update
+  simulation.force("collide", d3.forceCollide().radius(d => d.r_active + 4).iterations(2));
+
+  // Kompaktní orbit: velké bubliny blíž centru, malé dál. Range zúžený oproti
+  // free map, aby se to dalo přehlédnout jedním pohledem (Boss steering).
+  simulation.force("orbit", d3.forceRadial(d => {
+    if (d.id === id) return 0;
+    if ((d.r_active || 0) === 0) return Math.max(width, height) * 1.2;
+    const shared = partnerMap.get(d.id) || 0;
+    // Silnější vazba → menší poloměr (blíž). Range 110…270 (kompaktní).
+    return 110 + (1 - shared / maxShared) * 160;
+  }, width / 2, height / 2).strength(d => d.id === id ? 0 : 0.35));
+  // Zmírnit obecnou repulzi v constellation (charge tlačí pryč → rozprostírá to)
+  simulation.force("charge", d3.forceManyBody().strength(-8));
+
+  simulation.alpha(0.9).restart();
+
+  svg.selectAll(".bubble-group")
+    .transition().duration(500)
+    .style("opacity", d => {
+      if (d.id === id) return 1;
+      if ((d.r_active || 0) === 0) return 0;
+      if (!activeDomains.has(d.top_domain)) return 0.15;
+      return 1;
+    });
+
+  showDetail(tech, partnerMap, cohort);
+  hint.text("Klikni mimo bublinu pro návrat na celou mapu");
+}
+
+function exitConstellation() {
+  if (!selectedTechId) return;
+  selectedTechId = null;
+  // Vrátit velikosti na originální (free map mode)
+  nodesData.forEach(n => {
+    n.r_active = n.r_base;
+    n.fx = null; n.fy = null;
+  });
+  svg.selectAll(".bubble-group .bubble-circle")
+    .transition().duration(500)
+    .attr("r", d => d.r_active)
+    .attr("stroke", "rgba(255,255,255,0.08)")
+    .attr("stroke-width", 1);
+  svg.selectAll(".bubble-group text")
+    .transition().duration(500)
+    .attr("font-size", d => Math.max(10, Math.min(d.r_active * 0.32, 14)))
+    .attr("font-weight", 500)
+    .text(d => d.r_active > 16 ? d.id : "");
+  simulation.force("collide", d3.forceCollide().radius(d => d.r_active + 3).iterations(2));
+  simulation.force("orbit", null);
+  simulation.force("charge", d3.forceManyBody().strength(-30));   // vrátit defaultní repulzi
+  simulation.alpha(0.6).restart();
+  svg.selectAll(".bubble-group")
+    .transition().duration(500)
+    .style("opacity", d => activeDomains.has(d.top_domain) ? 1 : 0.15);
+  document.getElementById("detailPanel").classList.remove("show");
+  hint.text("Klikni na bublinu pro detail technologie");
+}
+
+// ------------------------------------------------------------------
+// TOOLTIP
+// ------------------------------------------------------------------
+function showTooltip(e, d) {
+  tooltip.html(`<div class="name">${d.id}</div>
+    <div class="meta">${CZ_NUM.format(d.count)} profesionálů · ${d.top_domain}</div>`)
+    .classed("show", true);
+  moveTooltip(e);
+}
+function moveTooltip(e) {
+  const rect = document.getElementById("canvasWrap").getBoundingClientRect();
+  tooltip
+    .style("left", (e.clientX - rect.left + 14) + "px")
+    .style("top", (e.clientY - rect.top + 14) + "px");
+}
+function hideTooltip() { tooltip.classed("show", false); }
+
+// ------------------------------------------------------------------
+// DETAIL PANEL
+// ------------------------------------------------------------------
+function showDetail(tech, partnerMap, cohort) {
+  document.getElementById("detailPanel").classList.add("show");
+  document.getElementById("detailName").textContent = tech.id;
+  document.getElementById("detailCount").textContent =
+    `${CZ_NUM.format(tech.count)} profesionálů · ${tech.top_domain}`;
+
+  const totalDom = d3.sum(Object.values(tech.domains));
+  renderBars("#domainBars", tech.domains, totalDom, name => DOMAIN_COLORS[name] || "var(--general)");
+
+  const totalRole = d3.sum(Object.values(tech.roles));
+  renderBars("#roleBars", tech.roles, totalRole, () => "var(--muted)");
+
+  const compWrap = d3.select("#companyList");
+  compWrap.selectAll("*").remove();
+  if (!tech.companies.length) {
+    compWrap.append("div").style("color", "var(--muted)").style("font-size", "12px").text("Žádná data");
+  } else {
+    for (const c of tech.companies) {
+      const row = compWrap.append("div").attr("class", "company-row");
+      row.append("span").text(c.name);
+      row.append("span").attr("class", "count").text(c.count);
+    }
+  }
+
+  // Co-occurrence tagy: reálné partnery z people_vectors (ne z předpočítané
+  // matice). Pokud showDetail volá někdo jiný než selectTech (např. budoucí
+  // hover), fallback na předpočítaný COOC_INDEX.
+  const tagWrap = d3.select("#coocTags");
+  tagWrap.selectAll("*").remove();
+  let entries = [];
+  if (partnerMap) {
+    entries = [...partnerMap.entries()]
+      .filter(([k]) => k !== tech.id)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+      .map(([partner, value]) => ({ partner, value }));
+  } else {
+    entries = (COOC_INDEX.get(tech.id) || []).slice(0, 8);
+  }
+  if (!entries.length) {
+    tagWrap.append("div").style("color", "var(--muted)").style("font-size", "12px").text("Žádné silné kombinace");
+  }
+  for (const p of entries) {
+    tagWrap.append("button")
+      .attr("class", "cooc-tag")
+      .on("click", e => { e.stopPropagation(); selectTech(p.partner); })
+      .html(`${p.partner}<span class="v">${p.value}</span>`);
+  }
+}
+
+function renderBars(selector, data, total, colorFn) {
+  const wrap = d3.select(selector);
+  wrap.selectAll("*").remove();
+  const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
+  for (const [name, val] of entries) {
+    const pct = total ? (val / total * 100) : 0;
+    const row = wrap.append("div").attr("class", "bar-row");
+    row.append("span").attr("class", "label").text(name);
+    const bg = row.append("span").attr("class", "bar-bg");
+    bg.append("span").attr("class", "bar-fill")
+      .style("width", pct + "%")
+      .style("background", colorFn(name));
+    row.append("span").attr("class", "val").text(val);
+  }
+}
+
+// ------------------------------------------------------------------
+// NAV
+// ------------------------------------------------------------------
+function setupNav() {
+  document.getElementById("navMap").addEventListener("click", () => showView("map"));
+  document.getElementById("navCalc").addEventListener("click", () => showView("calc"));
+}
+function showView(v) {
+  const onMap = v === "map";
+  document.getElementById("navMap").classList.toggle("active", onMap);
+  document.getElementById("navCalc").classList.toggle("active", !onMap);
+  document.getElementById("sidebar").style.display = onMap ? "block" : "none";
+  document.getElementById("canvasWrap").style.display = onMap ? "block" : "none";
+  document.getElementById("calculator").style.display = onMap ? "none" : "block";
+  if (onMap) onResize();
+}
+
+// ------------------------------------------------------------------
+// CALCULATOR
+// ------------------------------------------------------------------
+const calc = {
+  skills: [],
+  logic: "any",       // 'any' | 'all'
+  seniority: new Set(),
+  locations: new Set(),
+};
+
+function setupCalculator() {
+  // Reset state při rebuild (population toggle)
+  calc.skills = [];
+  calc.logic = "any";
+  calc.seniority = new Set();
+  calc.locations = new Set();
+  lastDisplayed = 0;
+
+  // Skill picker dropdown — rebuild celý select
+  const sel = document.getElementById("skillSelect");
+  sel.innerHTML = '<option value="">+ Přidat dovednost…</option>';
+  for (const t of DATA.technologies) {
+    if (VIEW.scope === "core" && t.category !== "core") continue;
+    const opt = document.createElement("option");
+    opt.value = t.id;
+    opt.textContent = `${t.id}  (${CZ_NUM.format(t.count)})`;
+    sel.appendChild(opt);
+  }
+  // Reset picked skills UI
+  document.querySelectorAll("#skillPickers .picked").forEach(n => n.remove());
+  // Reset logic radios
+  document.querySelector('input[name=logic][value=any]').checked = true;
+
+  // Reset existující chipy (rebuild)
+  document.getElementById("seniorityChips").innerHTML = "";
+  document.getElementById("locationChips").innerHTML = "";
+  sel.addEventListener("change", e => {
+    const v = e.target.value;
+    if (!v) return;
+    if (!calc.skills.includes(v)) calc.skills.push(v);
+    e.target.value = "";
+    renderSkills();
+    updateResult();
+  });
+
+  // Logic toggle — onchange overwrite (idempotent při rebuildu)
+  document.querySelectorAll("input[name=logic]").forEach(r => {
+    r.onchange = e => { calc.logic = e.target.value; updateResult(); };
+  });
+
+  // Seniority chips
+  const senWrap = document.getElementById("seniorityChips");
+  for (const s of SENIORITY_ORDER) {
+    const chip = document.createElement("div");
+    chip.className = "toggle-chip";
+    chip.textContent = s;
+    chip.addEventListener("click", () => {
+      if (calc.seniority.has(s)) calc.seniority.delete(s);
+      else calc.seniority.add(s);
+      chip.classList.toggle("active");
+      updateResult();
+    });
+    senWrap.appendChild(chip);
+  }
+
+  // Location chips — CZ label, DB value v dataset attributu
+  const locWrap = document.getElementById("locationChips");
+  for (const l of LOCATIONS) {
+    const chip = document.createElement("div");
+    chip.className = "toggle-chip";
+    chip.textContent = l.label;
+    chip.dataset.value = l.value;
+    chip.addEventListener("click", () => {
+      if (calc.locations.has(l.value)) calc.locations.delete(l.value);
+      else calc.locations.add(l.value);
+      chip.classList.toggle("active");
+      updateResult();
+    });
+    locWrap.appendChild(chip);
+  }
+
+  updateResult();
+}
+
+function renderSkills() {
+  const wrap = document.getElementById("skillPickers");
+  wrap.querySelectorAll(".picked").forEach(n => n.remove());
+  const sel = document.getElementById("skillSelect");
+  for (const s of calc.skills) {
+    const span = document.createElement("span");
+    span.className = "picked";
+    span.innerHTML = `${s} <span class="x">×</span>`;
+    span.querySelector(".x").addEventListener("click", () => {
+      calc.skills = calc.skills.filter(x => x !== s);
+      renderSkills();
+      updateResult();
+    });
+    wrap.insertBefore(span, sel);
+  }
+}
+
+function filterVectors() {
+  return DATA.people_vectors.filter(v => {
+    if (calc.skills.length) {
+      const has = calc.logic === "all"
+        ? calc.skills.every(s => v.skills.includes(s))
+        : calc.skills.some(s => v.skills.includes(s));
+      if (!has) return false;
+    }
+    if (calc.seniority.size && !calc.seniority.has(v.seniority)) return false;
+    if (calc.locations.size && !calc.locations.has(v.location)) return false;
+    return true;
+  });
+}
+
+let lastDisplayed = 0;
+function updateResult() {
+  const target = filterVectors().length;
+  const el = document.getElementById("resultCount");
+  const i = d3.interpolateNumber(lastDisplayed, target);
+  d3.transition().duration(400).tween("count", () => t => {
+    el.textContent = CZ_NUM.format(Math.round(i(t)));
+  });
+  lastDisplayed = target;
+}
+
+// ------------------------------------------------------------------
+// LAYOUT
+// ------------------------------------------------------------------
+function canvasSize() {
+  const el = document.getElementById("canvasWrap");
+  return { width: el.clientWidth, height: el.clientHeight };
+}
+function onResize() {
+  if (!simulation) return;
+  const { width, height } = canvasSize();
+  simulation.force("center", d3.forceCenter(width / 2, height / 2).strength(0.04));
+  if (selectedTechId) {
+    const node = nodesData.find(n => n.id === selectedTechId);
+    if (node) { node.fx = width / 2; node.fy = height / 2; }
+  }
+  simulation.alpha(0.3).restart();
+}
+function debounce(fn, ms) {
+  let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
+}
+
+init();
+</script>
+</body>
+</html>
