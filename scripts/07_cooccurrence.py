@@ -41,6 +41,11 @@ STUDY_SEGMENTS = ("core_aiml", "data", "adjacent")
 TOP_N_TECH = 40
 COOCCURRENCE_THRESHOLD = 15
 TOP_COMPANIES_PER_TECH = 6
+# k-anonymity threshold: firma se v per-person vektoru objeví jen tehdy,
+# když má v datasetu alespoň tolik lidí. Chrání před deanonymizací malých firem
+# kombinací (skills + seniority + location + company). Role se nefiltruje —
+# kanonický enum (ml_engineer, data_scientist…) má z definice širokou populaci.
+COMPANY_ANON_K = 5
 
 DOMAIN_LABEL = {
     "nlp_llm": "NLP / LLM",
@@ -233,7 +238,15 @@ def build_payload(db_path: Path, segments: tuple) -> dict:
     ]
     cooccurrence.sort(key=lambda x: -x["value"])
 
-    # Pass 4: people_vectors (anonymized) pro Talent Calculator
+    # Pass 4a: spočítat safe_companies (k-anonymity guard) — firmy s >= K lidi
+    # v datasetu, aby se nedaly deanonymizovat kombinací filtrů v Calculatoru.
+    company_counts: Counter = Counter()
+    for p in per_profile_skills:
+        if p["company"]:
+            company_counts[p["company"]] += 1
+    safe_companies = {c for c, n in company_counts.items() if n >= COMPANY_ANON_K}
+
+    # Pass 4b: people_vectors (anonymized) pro Talent Calculator
     people_vectors = []
     for p in per_profile_skills:
         # Filter skills na top 40 — calculator pracuje jen s nimi (filtry jsou
@@ -243,6 +256,8 @@ def build_payload(db_path: Path, segments: tuple) -> dict:
             "skills": relevant_skills,
             "seniority": p["seniority"],
             "location": p["location"],
+            "role": p["role"] or None,
+            "company": p["company"] if p["company"] in safe_companies else None,
         }
         people_vectors.append(vec)
 
