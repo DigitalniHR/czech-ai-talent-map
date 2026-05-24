@@ -304,6 +304,11 @@
     font-variant-numeric: tabular-nums;
   }
   .result-label { color: var(--muted); font-size: 14px; }
+  .result-empty-hint {
+    margin-top: 14px; color: var(--muted); font-size: 13px;
+    max-width: 480px; margin-left: auto; margin-right: auto;
+    line-height: 1.5;
+  }
 
   /* Calculator breakdown — 3 column grid (Top firmy, Seniorita, Top role) */
   .breakdown-grid {
@@ -312,6 +317,8 @@
     gap: 16px;
     margin: 0 0 12px 0;
   }
+  /* hidden attribute must beat .breakdown-grid { display: grid } */
+  [hidden] { display: none !important; }
   .breakdown-card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -587,7 +594,10 @@
 
       <div class="result-card">
         <div class="result-number" id="resultCount">0</div>
-        <div class="result-label">profesionálů v databázi</div>
+        <div class="result-label" id="resultLabel">profesionálů v databázi</div>
+        <div class="result-empty-hint" id="resultEmptyHint" hidden>
+          Žádný profesionál neodpovídá filtru. Zkus uvolnit kritéria — vybrat širší seniority, jiné technologie nebo víc lokalit.
+        </div>
       </div>
 
       <div class="breakdown-grid" id="breakdownGrid" hidden>
@@ -666,6 +676,30 @@ const ROLE_LABEL = {
 };
 // Pevné pořadí seniority pro breakdown bar (junior → senior → C-level)
 const SENIORITY_ORDER_FULL = ["Junior", "Mid", "Senior", "Lead", "C-level"];
+// Zkratky pro dlouhé tech labely v bublinách (omezený prostor — když celé jméno
+// nepasuje, použijeme standardní industry zkratku). Detail panel po kliknutí
+// ukáže plný název.
+const LABEL_SHORT = {
+  "Amazon Web Services": "AWS",
+  "Google Cloud Platform": "GCP",
+  "Retrieval Augmented Generation": "RAG",
+  "Natural Language Processing": "NLP",
+  "Large Language Models": "LLMs",
+  "Artificial Intelligence": "AI",
+  "Machine Learning": "ML",
+  "Deep Learning": "Deep Learning",
+  "Computer Vision": "CV",
+  "Anthropic Claude": "Claude",
+  "Prompt Engineering": "Prompts",
+  "Generative AI": "GenAI",
+  "Data Engineering": "Data Eng",
+  "Neural Networks": "NN",
+};
+function bubbleLabel(d) {
+  // r >= 50 → plný název pasuje, menší → použít zkratku, nejmenší → nic
+  if (d.r_active >= 50) return d.id;
+  return LABEL_SHORT[d.id] || d.id;
+}
 // Český formátovač čísel (tisícové mezery)
 const CZ_NUM = new Intl.NumberFormat("cs-CZ");
 
@@ -728,8 +762,17 @@ async function loadDataset(name) {
   COOC_INDEX = buildCoocIndex(DATA.cooccurrence);
   document.getElementById("headerStats").innerHTML =
     `<b>${CZ_NUM.format(DATA.stats.total_professionals)}</b> profesionálů · <b>${CZ_NUM.format(DATA.stats.total_companies)}</b> firem`;
+  // Footer: human-readable info pro laika (datum + počet + zdroj). Geek detaily
+  // jako `top 40 technologií · práh společného výskytu 15` jsou skryté — lead
+  // si je dohledá v metodice, ne na hlavičkové straně.
   document.getElementById("footerMeta").textContent =
-    `Snímek dat ${DATA.stats.generated_at.slice(0,10)} · top ${DATA.stats.skills_in_top} technologií · práh společného výskytu ${DATA.stats.cooccurrence_threshold} · populace „${DATA.stats.dataset_label}"`;
+    `Data k ${formatCzDate(DATA.stats.generated_at)} · ${CZ_NUM.format(DATA.stats.total_professionals)} profesionálů · zdroj: LinkedIn`;
+}
+
+function formatCzDate(isoStr) {
+  const d = new Date(isoStr);
+  if (isNaN(d)) return isoStr.slice(0, 10);
+  return `${d.getDate()}. ${d.getMonth() + 1}. ${d.getFullYear()}`;
 }
 
 function setupToggles() {
@@ -891,7 +934,7 @@ function draw() {
 
   groups.select("text")
     .attr("font-size", d => Math.max(10, Math.min(d.r_active * 0.32, 14)))
-    .text(d => d.r_active > 16 ? d.id : "");
+    .text(d => d.r_active > 16 ? bubbleLabel(d) : "");
 
   // Click outside → exit constellation
   svg.on("click", () => exitConstellation());
@@ -961,7 +1004,7 @@ function selectTech(id) {
     .transition().duration(500)
     .attr("font-size", d => d.id === id ? 16 : Math.max(10, Math.min(d.r_active * 0.32, 14)))
     .attr("font-weight", d => d.id === id ? 700 : 500)
-    .text(d => d.r_active > 16 ? d.id : "");
+    .text(d => d.r_active > 16 ? bubbleLabel(d) : "");
 
   // Collision update
   simulation.force("collide", d3.forceCollide().radius(d => d.r_active + 4).iterations(2));
@@ -1010,7 +1053,7 @@ function exitConstellation() {
     .transition().duration(500)
     .attr("font-size", d => Math.max(10, Math.min(d.r_active * 0.32, 14)))
     .attr("font-weight", 500)
-    .text(d => d.r_active > 16 ? d.id : "");
+    .text(d => d.r_active > 16 ? bubbleLabel(d) : "");
   simulation.force("collide", d3.forceCollide().radius(d => d.r_active + 3).iterations(2));
   simulation.force("orbit", null);
   simulation.force("charge", d3.forceManyBody().strength(-30));   // vrátit defaultní repulzi
@@ -1244,11 +1287,20 @@ let lastDisplayed = 0;
 function updateResult() {
   const matched = filterVectors();
   const target = matched.length;
+  const from = lastDisplayed;
   const el = document.getElementById("resultCount");
-  const i = d3.interpolateNumber(lastDisplayed, target);
-  d3.transition().duration(400).tween("count", () => t => {
-    el.textContent = CZ_NUM.format(Math.round(i(t)));
+  // Přerušit běžící transition na tomto elementu — bez interrupt by se nová
+  // a stará tweeny překryly a finální text byl nedeterministický.
+  const sel = d3.select(el).interrupt();
+  sel.transition().duration(400).tween("count", function () {
+    const node = this;
+    const i = d3.interpolateNumber(from, target);
+    return t => { node.textContent = CZ_NUM.format(Math.round(i(t))); };
   });
+  // Pojistka — po skončení animace explicitně zapiš target. Když transition
+  // selže (D3 v7 občas drop tweenů při rapid resize), uživatel pořád vidí
+  // správnou hodnotu, ne mezistav.
+  setTimeout(() => { el.textContent = CZ_NUM.format(target); }, 450);
   lastDisplayed = target;
   renderBreakdown(matched);
 }
@@ -1256,14 +1308,20 @@ function updateResult() {
 function renderBreakdown(matched) {
   const grid = document.getElementById("breakdownGrid");
   const note = document.getElementById("bdNote");
+  const emptyHint = document.getElementById("resultEmptyHint");
+  const label = document.getElementById("resultLabel");
   if (!grid) return;
   if (!matched.length) {
     grid.hidden = true;
     note.hidden = true;
+    if (emptyHint) emptyHint.hidden = false;
+    if (label) label.hidden = true;
     return;
   }
   grid.hidden = false;
   note.hidden = false;
+  if (emptyHint) emptyHint.hidden = true;
+  if (label) label.hidden = false;
 
   // ── Top zaměstnavatelé (k-anon ≥5 → null pro malé firmy) ──
   const compCounts = new Map();
