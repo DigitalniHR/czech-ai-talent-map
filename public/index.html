@@ -304,6 +304,70 @@
     font-variant-numeric: tabular-nums;
   }
   .result-label { color: var(--muted); font-size: 14px; }
+
+  /* Calculator breakdown — 3 column grid (Top firmy, Seniorita, Top role) */
+  .breakdown-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 0 0 12px 0;
+  }
+  .breakdown-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    min-height: 200px;
+  }
+  .breakdown-card h4 {
+    margin: 0 0 12px 0;
+    font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .08em;
+    color: var(--muted);
+  }
+  .bd-list {
+    list-style: none; padding: 0; margin: 0;
+    font-size: 13px; color: var(--text);
+  }
+  .bd-list li {
+    display: flex; justify-content: space-between;
+    padding: 5px 0; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums;
+  }
+  .bd-list li:last-child { border-bottom: none; }
+  .bd-list .bd-name { color: var(--text); }
+  .bd-list .bd-count { color: var(--muted); margin-left: 8px; }
+  .bd-list .bd-empty {
+    color: var(--muted); font-style: italic; padding: 8px 0;
+    border: none; display: block;
+  }
+  .bd-bars { display: flex; flex-direction: column; gap: 10px; }
+  .bd-bar-row {
+    display: grid;
+    grid-template-columns: 70px 1fr 44px;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+  }
+  .bd-bar-row .bd-bar-label { color: var(--muted); }
+  .bd-bar-row .bd-bar-track {
+    height: 8px; background: var(--surface-2);
+    border-radius: 4px; overflow: hidden;
+  }
+  .bd-bar-row .bd-bar-fill {
+    height: 100%; background: var(--accent);
+    transition: width .3s ease;
+  }
+  .bd-bar-row .bd-bar-val {
+    color: var(--text); text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .breakdown-note {
+    margin: 0 0 20px 0; padding: 0;
+    font-size: 11px; color: var(--muted);
+    text-align: center; font-style: italic;
+  }
+
   .cta-btn {
     display: inline-block; padding: 14px 32px;
     background: var(--accent); color: var(--accent-ink);
@@ -352,9 +416,11 @@
     }
   }
 
-  /* Tablet (≤900): sidebar shrinks */
+  /* Tablet (≤900): sidebar shrinks, breakdown stacks to 1 column */
   @media (max-width: 900px) {
     aside.sidebar { width: 220px; padding: 12px; }
+    .breakdown-grid { grid-template-columns: 1fr; gap: 12px; }
+    .breakdown-card { min-height: 0; }
   }
 
   /* Mobile (≤720): bubble OFF, calculator-only experience */
@@ -421,6 +487,8 @@
     .result-card { padding: 24px 16px; margin: 18px 0; }
     .result-number { font-size: 48px; }
     .result-label { font-size: 13px; }
+    .breakdown-grid { grid-template-columns: 1fr; gap: 12px; }
+    .breakdown-card { min-height: 0; padding: 14px 16px; }
     .cta-btn { padding: 14px 24px; font-size: 14px; width: 100%; text-align: center; box-sizing: border-box; }
     .footer-meta { padding: 10px 14px; font-size: 10px; text-align: center; }
   }
@@ -522,8 +590,26 @@
         <div class="result-label">profesionálů v databázi</div>
       </div>
 
+      <div class="breakdown-grid" id="breakdownGrid" hidden>
+        <div class="breakdown-card">
+          <h4>Top zaměstnavatelé</h4>
+          <ol class="bd-list" id="bdCompanies"></ol>
+        </div>
+        <div class="breakdown-card">
+          <h4>Seniorita</h4>
+          <div class="bd-bars" id="bdSeniority"></div>
+        </div>
+        <div class="breakdown-card">
+          <h4>Top role</h4>
+          <ol class="bd-list" id="bdRoles"></ol>
+        </div>
+      </div>
+      <p class="breakdown-note" id="bdNote" hidden>
+        Firmy s méně než 5 lidmi v datasetu jsou skryté pro ochranu identity.
+      </p>
+
       <div style="text-align: center;">
-        <a href="mailto:matej@aplayerz.io?subject=Pozadavek%20na%20AI%20talent" class="cta-btn" id="ctaBtn">
+        <a href="mailto:matej@digitalnihr.cz?subject=Pozadavek%20na%20AI%20talent" class="cta-btn" id="ctaBtn">
           Domluvit konzultaci →
         </a>
       </div>
@@ -566,6 +652,20 @@ const LOCATIONS = [
   { label: "Vzdáleně",   value: "Remote" },
   { label: "V zahraničí", value: "Abroad" },
 ];
+// Role labels (mirror ROLE_LABEL z scripts/07_cooccurrence.py)
+const ROLE_LABEL = {
+  ml_engineer: "ML Engineer",
+  research_scientist: "Research Scientist",
+  data_scientist: "Data Scientist",
+  data_engineer: "Data Engineer",
+  mlops_engineer: "MLOps Engineer",
+  ai_product: "AI Product",
+  software_engineer: "Software Engineer",
+  manager: "Manager",
+  other: "Jiná role",
+};
+// Pevné pořadí seniority pro breakdown bar (junior → senior → C-level)
+const SENIORITY_ORDER_FULL = ["Junior", "Mid", "Senior", "Lead", "C-level"];
 // Český formátovač čísel (tisícové mezery)
 const CZ_NUM = new Intl.NumberFormat("cs-CZ");
 
@@ -611,12 +711,16 @@ async function init() {
   window.addEventListener("resize", debounce(onResize, 150));
 }
 
+// Schema verze — bump když se změní tvar people_vectors / technologies,
+// aby browser nedržel starý JSON v cache (Railway servíruje s max-age=3600).
+const DATA_SCHEMA_VERSION = "v2-2026-05-24";
+
 async function loadDataset(name) {
   const file = DATASET_FILES[name] || DATASET_FILES.all;
   try {
-    DATA = await d3.json(file);
+    DATA = await d3.json(file + "?s=" + DATA_SCHEMA_VERSION);
   } catch (e) {
-    document.body.innerHTML = `<div style="padding:40px;color:#ff6b6b;font-family:Inter,sans-serif">Data se nepodařilo načíst. Pokud problém přetrvává, kontaktujte <a href="mailto:matej@aplayerz.io" style="color:#3dd8c4">matej@aplayerz.io</a>.</div>`;
+    document.body.innerHTML = `<div style="padding:40px;color:#ff6b6b;font-family:Inter,sans-serif">Data se nepodařilo načíst. Pokud problém přetrvává, kontaktujte <a href="mailto:matej@digitalnihr.cz" style="color:#3dd8c4">matej@digitalnihr.cz</a>.</div>`;
     console.error(e);
     throw e;
   }
@@ -1138,13 +1242,90 @@ function filterVectors() {
 
 let lastDisplayed = 0;
 function updateResult() {
-  const target = filterVectors().length;
+  const matched = filterVectors();
+  const target = matched.length;
   const el = document.getElementById("resultCount");
   const i = d3.interpolateNumber(lastDisplayed, target);
   d3.transition().duration(400).tween("count", () => t => {
     el.textContent = CZ_NUM.format(Math.round(i(t)));
   });
   lastDisplayed = target;
+  renderBreakdown(matched);
+}
+
+function renderBreakdown(matched) {
+  const grid = document.getElementById("breakdownGrid");
+  const note = document.getElementById("bdNote");
+  if (!grid) return;
+  if (!matched.length) {
+    grid.hidden = true;
+    note.hidden = true;
+    return;
+  }
+  grid.hidden = false;
+  note.hidden = false;
+
+  // ── Top zaměstnavatelé (k-anon ≥5 → null pro malé firmy) ──
+  const compCounts = new Map();
+  let withCompany = 0;
+  for (const p of matched) {
+    if (!p.company) continue;
+    compCounts.set(p.company, (compCounts.get(p.company) || 0) + 1);
+    withCompany++;
+  }
+  const topCompanies = [...compCounts.entries()]
+    .sort((a, b) => b[1] - a[1]).slice(0, 10);
+  const compsEl = document.getElementById("bdCompanies");
+  if (!topCompanies.length) {
+    compsEl.innerHTML = `<li class="bd-empty">Žádná firma s ≥5 lidmi v této skupině.</li>`;
+  } else {
+    compsEl.innerHTML = topCompanies.map(([name, n]) =>
+      `<li><span class="bd-name">${escapeHtml(name)}</span><span class="bd-count">${CZ_NUM.format(n)}</span></li>`
+    ).join("");
+  }
+
+  // ── Seniorita distribution ──
+  const senCounts = Object.fromEntries(SENIORITY_ORDER_FULL.map(s => [s, 0]));
+  for (const p of matched) {
+    if (p.seniority && senCounts.hasOwnProperty(p.seniority)) {
+      senCounts[p.seniority]++;
+    }
+  }
+  const maxSen = Math.max(...Object.values(senCounts), 1);
+  document.getElementById("bdSeniority").innerHTML = SENIORITY_ORDER_FULL.map(s => {
+    const n = senCounts[s];
+    const pct = (n / maxSen) * 100;
+    const pctOfTotal = matched.length ? Math.round((n / matched.length) * 100) : 0;
+    return `<div class="bd-bar-row">
+      <span class="bd-bar-label">${s}</span>
+      <span class="bd-bar-track"><span class="bd-bar-fill" style="width:${pct}%"></span></span>
+      <span class="bd-bar-val">${CZ_NUM.format(n)} · ${pctOfTotal}%</span>
+    </div>`;
+  }).join("");
+
+  // ── Top role ──
+  const roleCounts = new Map();
+  for (const p of matched) {
+    if (!p.role) continue;
+    roleCounts.set(p.role, (roleCounts.get(p.role) || 0) + 1);
+  }
+  const topRoles = [...roleCounts.entries()]
+    .sort((a, b) => b[1] - a[1]).slice(0, 5);
+  const rolesEl = document.getElementById("bdRoles");
+  if (!topRoles.length) {
+    rolesEl.innerHTML = `<li class="bd-empty">Bez role.</li>`;
+  } else {
+    rolesEl.innerHTML = topRoles.map(([r, n]) => {
+      const label = ROLE_LABEL[r] || r;
+      return `<li><span class="bd-name">${escapeHtml(label)}</span><span class="bd-count">${CZ_NUM.format(n)}</span></li>`;
+    }).join("");
+  }
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[c]));
 }
 
 // ------------------------------------------------------------------
