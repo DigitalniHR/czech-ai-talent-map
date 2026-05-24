@@ -329,6 +329,101 @@
     border-top: 1px solid var(--border);
     font-size: 11px; color: var(--muted); text-align: right;
   }
+
+  /* ==================================================================
+     RESPONSIVE — Tablet & Mobile
+     ================================================================== */
+
+  /* Narrow desktop & tablet (≤1200): header controls wrap to 2nd row */
+  @media (max-width: 1200px) {
+    header {
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      padding: 12px 16px;
+    }
+    header nav { margin-left: auto; }
+    header .stats { margin-left: auto; order: 2; }
+    header .header-toggles {
+      margin-left: 0;
+      order: 3;
+      width: 100%;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+  }
+
+  /* Tablet (≤900): sidebar shrinks */
+  @media (max-width: 900px) {
+    aside.sidebar { width: 220px; padding: 12px; }
+  }
+
+  /* Mobile (≤720): bubble OFF, calculator-only experience */
+  @media (max-width: 720px) {
+    html, body { overflow: auto; height: auto; }
+    .app { height: auto; min-height: 100vh; }
+
+    header {
+      padding: 10px 14px;
+      gap: 8px 12px;
+    }
+    header .brand {
+      font-size: 14px;
+      flex: 1 1 100%;
+    }
+    /* Mapa tab off — bubble nedává smysl na mobilu */
+    header #navMap { display: none; }
+    header nav {
+      margin-left: 0;
+      flex: 0 0 auto;
+    }
+    header nav button { padding: 8px 16px; font-size: 13px; }
+    header .stats {
+      order: 5;
+      width: 100%;
+      margin-left: 0;
+      text-align: left;
+      font-size: 11px;
+    }
+    header .header-toggles {
+      order: 4;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 6px;
+      width: 100%;
+    }
+    .toggle-group {
+      width: 100%;
+      justify-content: flex-start;
+      overflow-x: auto;
+      padding: 3px 6px;
+    }
+    .toggle-group .toggle-label { padding: 0 4px; font-size: 10px; }
+    .toggle-group button { padding: 4px 10px; font-size: 11px; white-space: nowrap; }
+
+    main { flex-direction: column; min-height: 0; }
+    aside.sidebar { display: none; }
+    .canvas-wrap { display: none !important; }
+    .tooltip { display: none; }
+
+    .calculator {
+      display: block !important;
+      padding: 24px 16px;
+      max-width: 100%;
+    }
+    .calc-title { font-size: 22px; }
+    .calc-sub { font-size: 13px; margin-bottom: 18px; }
+    .calc-section { margin-bottom: 16px; }
+    .calc-section h3 { font-size: 12px; }
+    .toggle-row { flex-wrap: wrap; gap: 6px; }
+    .toggle-row button, .toggle-row .chip {
+      padding: 6px 12px; font-size: 12px;
+    }
+    .result-card { padding: 24px 16px; margin: 18px 0; }
+    .result-number { font-size: 48px; }
+    .result-label { font-size: 13px; }
+    .cta-btn { padding: 14px 24px; font-size: 14px; width: 100%; text-align: center; box-sizing: border-box; }
+    .footer-meta { padding: 10px 14px; font-size: 10px; text-align: center; }
+  }
 </style>
 </head>
 <body>
@@ -507,6 +602,12 @@ async function init() {
   setupNav();
   setupToggles();
   setupCalculator();
+  // Mobile: bubble je skrytý CSS-em, default view = Kalkulačka.
+  // Resize listener přepíná view, když uživatel rotuje device přes hranici.
+  const mobileMq = window.matchMedia("(max-width: 720px)");
+  const applyMobileView = (mq) => showView(mq.matches ? "calc" : "map");
+  applyMobileView(mobileMq);
+  mobileMq.addEventListener("change", applyMobileView);
   window.addEventListener("resize", debounce(onResize, 150));
 }
 
