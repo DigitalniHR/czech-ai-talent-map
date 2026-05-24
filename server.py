@@ -49,6 +49,9 @@ class TalentMapHandler(SimpleHTTPRequestHandler):
             "Permissions-Policy",
             "geolocation=(), microphone=(), camera=(), payment=()",
         )
+        # CORS — fetch datasetů z digitalnihr.cz a libovolného origins (lead magnet embed)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, OPTIONS")
         # Cache: JSON datasety 1h (refresh měsíčně, ale i tak hash-based etag)
         path = self.path.split("?")[0]
         if path.endswith(".json"):
