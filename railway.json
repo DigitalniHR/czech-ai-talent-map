@@ -4,6 +4,7 @@
     "builder": "RAILPACK"
   },
   "deploy": {
+    "startCommand": "python3 server.py",
     "healthcheckPath": "/data.json",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 3
