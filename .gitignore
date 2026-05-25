@@ -1,6 +1,2 @@
-__pycache__/
-*.pyc
-.pytest_cache/
-.DS_Store
-.venv/
-venv/
+# Macaly upload artifact — generován z public/index.html, není autoritativní
+MACALY_PAGE_CONTENT.html
