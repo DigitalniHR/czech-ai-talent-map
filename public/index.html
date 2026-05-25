@@ -9,7 +9,7 @@
 <meta name="keywords" content="AI talent Česko, machine learning Praha, AI nábor, sourcing AI specialistů, mapa AI specialistů, AI odborníci ČR, AI/ML kandidáti, datový recruitment, DigitálníHR" />
 <meta name="author" content="DigitálníHR" />
 <meta name="robots" content="index, follow, max-image-preview:large" />
-<meta name="theme-color" content="#050d0c" />
+<meta name="theme-color" content="#eef2f5" />
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23050d0c' rx='6'/%3E%3Ccircle cx='16' cy='16' r='8' fill='%233dd8c4'/%3E%3C/svg%3E" />
 
 <link rel="canonical" href="https://www.digitalnihr.cz/ai-talent-mapa" />
@@ -72,25 +72,25 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <style>
   :root {
-    --bg: #050d0c;
-    --surface: #0a1716;
-    --surface-2: #0f2120;
-    --border: #1a2d2a;
-    --text: #ffffff;
-    --muted: #8b9690;
-    --accent: #3dd8c4;
-    --accent-hover: #5ee8d5;
-    --accent-soft: rgba(61,216,196,.14);
-    --accent-strong: rgba(61,216,196,.28);
-    --accent-ink: #050d0c;
-    /* Domain barvy — kategorické indikátory, posunuté tak, aby se brand-tinted
-       NLP doména držela rodiny accent, ostatní zůstávají odlišitelné. */
-    --nlp: #3dd8c4;     /* mint — sjednoceno s brandem (NLP/LLM je dominantní) */
-    --cv: #6fe88b;      /* mírnější zelená než brand */
-    --gen: #c79bff;
-    --ml: #f0c14a;
-    --robot: #ff6b6b;
-    --general: #5d6b69;
+    /* Light grey theme — sladěno s digitalnihr.cz (--paper + --teal accent) */
+    --bg: #eef2f5;            /* světle šedé pozadí */
+    --surface: #ffffff;        /* bílé karty */
+    --surface-2: #f4f6f8;      /* o stupínek šedší pro vnořené prvky */
+    --border: #dde2e8;
+    --text: #1a1f24;           /* téměř černý text */
+    --muted: #6b7280;
+    --accent: #0d9488;         /* sytá tyrkysová (DHR teal-family, čitelná na bílé) */
+    --accent-hover: #0f766e;
+    --accent-soft: rgba(13,148,136,.10);
+    --accent-strong: rgba(13,148,136,.22);
+    --accent-ink: #ffffff;     /* text na accent button */
+    /* Bubble color rodiny — jemnější tóny pro light bg */
+    --nlp: #0d9488;
+    --cv: #16a34a;
+    --gen: #9333ea;
+    --ml: #d97706;
+    --robot: #dc2626;
+    --general: #94a3b8;
   }
   * { box-sizing: border-box; }
   html, body {
@@ -351,7 +351,7 @@
   .bd-bars { display: flex; flex-direction: column; gap: 10px; }
   .bd-bar-row {
     display: grid;
-    grid-template-columns: 70px 1fr 44px;
+    grid-template-columns: 60px 1fr 86px;
     align-items: center;
     gap: 10px;
     font-size: 12px;
@@ -368,6 +368,7 @@
   .bd-bar-row .bd-bar-val {
     color: var(--text); text-align: right;
     font-variant-numeric: tabular-nums;
+    white-space: nowrap;
   }
   .breakdown-note {
     margin: 0 0 20px 0; padding: 0;
@@ -510,16 +511,10 @@
       <button id="navCalc">Kalkulačka</button>
     </nav>
     <div class="header-toggles">
-      <div class="toggle-group" id="populationToggle">
-        <span class="toggle-label">Populace:</span>
-        <button data-dataset="all" class="active" title="Všichni AI/ML profesionálové (core + adjacent role)">Všichni</button>
-        <button data-dataset="engineers" title="Skuteční AI/ML inženýři a data tým (core_aiml + data segment)">AI inženýři</button>
-        <button data-dataset="adjacent" title="Produktoví, výzkumní, AI-aware role bez engineeringu">Adjacent role</button>
-      </div>
       <div class="toggle-group" id="scopeToggle">
         <span class="toggle-label">Zobrazit:</span>
-        <button data-scope="all" class="active" title="Core AI + adjacent technologie">Vše</button>
-        <button data-scope="core" title="Jen core AI tooling a koncepty (PyTorch, RAG, LLM…)">Jen AI</button>
+        <button data-scope="all" class="active" title="Všechny skills (core AI + adjacent)">Vše</button>
+        <button data-scope="core" title="Jen core AI skills z katalogu (PyTorch, RAG, LLM…)">Jen AI</button>
       </div>
     </div>
     <div class="stats" id="headerStats">načítám…</div>
@@ -528,26 +523,26 @@
   <main>
     <!-- Sidebar — used only on Map view -->
     <aside class="sidebar" id="sidebar">
-      <h2 class="panel-title">AI obory</h2>
-      <div class="domain-chips" id="domainChips"></div>
+      <h2 class="panel-title">Skill detail</h2>
+      <div class="hint-empty" style="font-size:12px;color:var(--muted);padding:8px 0;">Klikni na bublinu vpravo pro detail technologie.</div>
 
       <div id="detailPanel">
         <h3 class="detail-name" id="detailName">—</h3>
         <div class="detail-count" id="detailCount">—</div>
 
         <div class="breakdown">
-          <div class="breakdown-title">Rozložení podle AI oborů</div>
-          <div id="domainBars"></div>
-        </div>
-
-        <div class="breakdown">
-          <div class="breakdown-title">Role</div>
-          <div id="roleBars"></div>
+          <div class="breakdown-title">Seniorita</div>
+          <div id="seniorityBars"></div>
         </div>
 
         <div class="breakdown">
           <div class="breakdown-title">Top zaměstnavatelé</div>
           <div id="companyList"></div>
+        </div>
+
+        <div class="breakdown">
+          <div class="breakdown-title">Top školy</div>
+          <div id="schoolList"></div>
         </div>
 
         <div class="breakdown">
@@ -610,15 +605,17 @@
           <div class="bd-bars" id="bdSeniority"></div>
         </div>
         <div class="breakdown-card">
-          <h4>Top role</h4>
-          <ol class="bd-list" id="bdRoles"></ol>
+          <h4>Top školy</h4>
+          <ol class="bd-list" id="bdSchools"></ol>
         </div>
       </div>
       <p class="breakdown-note" id="bdNote" hidden>
         Firmy s méně než 5 lidmi v datasetu jsou skryté pro ochranu identity.
       </p>
 
-      <div style="text-align: center;">
+      <!-- CTA „Domluvit konzultaci" dočasně skryté (Boss directive 2026-05-25).
+           Až bude jasný cílový endpoint (Calendly / form / mailto), vrátíme zpět. -->
+      <div style="text-align: center; display: none;">
         <a href="mailto:matej@digitalnihr.cz?subject=Pozadavek%20na%20AI%20talent" class="cta-btn" id="ctaBtn">
           Domluvit konzultaci →
         </a>
@@ -640,40 +637,25 @@
 <script>
 "use strict";
 
-const DOMAIN_COLORS = {
-  "NLP / LLM": "var(--nlp)",
-  "Computer Vision": "var(--cv)",
-  "Generative AI": "var(--gen)",
-  "Classic ML": "var(--ml)",
-  "Robotics": "var(--robot)",
-  "General": "var(--general)",
+// Barva bubliny podle catalog `relevance` field — core_ai sytá, adjacent bledá.
+const RELEVANCE_COLORS = {
+  core_ai:  "var(--accent)",   // sytá tyrkysová (brand)
+  adjacent: "var(--gen)",      // jemnější (purple/general)
+  non_ai:   "var(--general)",  // šedá (v top 40 by se ale neměly objevit)
+  unknown:  "var(--general)",
 };
-const DOMAIN_ORDER = [
-  "NLP / LLM", "Computer Vision", "Generative AI",
-  "Classic ML", "Robotics", "General",
-];
+function bubbleColor(t) {
+  return RELEVANCE_COLORS[t.relevance || "unknown"] || "var(--general)";
+}
 // Seniority chip labely (DB hodnota = identita, EN — universal tech term)
 const SENIORITY_ORDER = ["Junior", "Mid", "Senior", "Lead", "C-level"];
 // Lokality: label (CZ) → DB hodnota (EN, z pipeline people_vectors)
 const LOCATIONS = [
-  { label: "Praha",      value: "Prague" },
-  { label: "Brno",       value: "Brno" },
-  { label: "Ostrava",    value: "Ostrava" },
-  { label: "Vzdáleně",   value: "Remote" },
-  { label: "V zahraničí", value: "Abroad" },
+  { label: "Praha",    value: "Prague" },
+  { label: "Brno",     value: "Brno" },
+  { label: "Ostrava",  value: "Ostrava" },
+  { label: "Vzdáleně", value: "Remote" },
 ];
-// Role labels (mirror ROLE_LABEL z scripts/07_cooccurrence.py)
-const ROLE_LABEL = {
-  ml_engineer: "ML Engineer",
-  research_scientist: "Research Scientist",
-  data_scientist: "Data Scientist",
-  data_engineer: "Data Engineer",
-  mlops_engineer: "MLOps Engineer",
-  ai_product: "AI Product",
-  software_engineer: "Software Engineer",
-  manager: "Manager",
-  other: "Jiná role",
-};
 // Pevné pořadí seniority pro breakdown bar (junior → senior → C-level)
 const SENIORITY_ORDER_FULL = ["Junior", "Mid", "Senior", "Lead", "C-level"];
 // Zkratky pro dlouhé tech labely v bublinách (omezený prostor — když celé jméno
@@ -705,22 +687,16 @@ const CZ_NUM = new Intl.NumberFormat("cs-CZ");
 
 let DATA = null;
 let TECH_BY_ID = new Map();
-let COOC_INDEX = new Map();  // techId → [{partner, value}]
-let activeDomains = new Set(DOMAIN_ORDER);
+// COOC_INDEX zaniká — co-occurrence se počítá live v currentView.cooc
 let selectedTechId = null;
 let simulation = null;
 let nodesData = [];
 
 // Stav toggles
 const VIEW = {
-  dataset: "all",       // 'all' | 'engineers' | 'adjacent'
-  scope: "all",         // 'all' (core+adjacent) | 'core'
+  scope: "all",         // 'all' (všechny skills) | 'core' (jen relevance=core_ai)
 };
-const DATASET_FILES = {
-  all: "data.json",
-  engineers: "data_engineers.json",
-  adjacent: "data_adjacent.json",
-};
+const DATASET_FILE = "data.json";
 
 const svg = d3.select("#bubbles");
 const tooltip = d3.select("#tooltip");
@@ -730,8 +706,7 @@ const hint = d3.select("#hint");
 // BOOT
 // ------------------------------------------------------------------
 async function init() {
-  await loadDataset(VIEW.dataset);
-  renderDomainChips();
+  await loadDataset();
   setupSimulation();
   setupNav();
   setupToggles();
@@ -747,26 +722,25 @@ async function init() {
 
 // Schema verze — bump když se změní tvar people_vectors / technologies,
 // aby browser nedržel starý JSON v cache (Railway servíruje s max-age=3600).
-const DATA_SCHEMA_VERSION = "v2-2026-05-24";
+const DATA_SCHEMA_VERSION = "v3.1-core-ai-2026-05-25";
 
-async function loadDataset(name) {
-  const file = DATASET_FILES[name] || DATASET_FILES.all;
+async function loadDataset() {
   try {
-    DATA = await d3.json(file + "?s=" + DATA_SCHEMA_VERSION);
+    DATA = await d3.json(DATASET_FILE + "?s=" + DATA_SCHEMA_VERSION);
   } catch (e) {
     document.body.innerHTML = `<div style="padding:40px;color:#ff6b6b;font-family:Inter,sans-serif">Data se nepodařilo načíst. Pokud problém přetrvává, kontaktujte <a href="mailto:matej@digitalnihr.cz" style="color:#3dd8c4">matej@digitalnihr.cz</a>.</div>`;
     console.error(e);
     throw e;
   }
   TECH_BY_ID = new Map(DATA.technologies.map(t => [t.id, t]));
-  COOC_INDEX = buildCoocIndex(DATA.cooccurrence);
+  recomputeView();   // live aggregation z DATA.people_vectors
   document.getElementById("headerStats").innerHTML =
     `<b>${CZ_NUM.format(DATA.stats.total_professionals)}</b> profesionálů · <b>${CZ_NUM.format(DATA.stats.total_companies)}</b> firem`;
   // Footer: human-readable info pro laika (datum + počet + zdroj). Geek detaily
   // jako `top 40 technologií · práh společného výskytu 15` jsou skryté — lead
   // si je dohledá v metodice, ne na hlavičkové straně.
   document.getElementById("footerMeta").textContent =
-    `Data k ${formatCzDate(DATA.stats.generated_at)} · ${CZ_NUM.format(DATA.stats.total_professionals)} profesionálů · zdroj: LinkedIn`;
+    `Data k ${formatCzDate(DATA.stats.generated_at)} · ${CZ_NUM.format(DATA.stats.total_professionals)} profesionálů`;
 }
 
 function formatCzDate(isoStr) {
@@ -776,19 +750,7 @@ function formatCzDate(isoStr) {
 }
 
 function setupToggles() {
-  // Populace
-  document.querySelectorAll("#populationToggle button").forEach(b => {
-    b.addEventListener("click", async () => {
-      const ds = b.dataset.dataset;
-      if (ds === VIEW.dataset) return;
-      VIEW.dataset = ds;
-      document.querySelectorAll("#populationToggle button").forEach(x => x.classList.toggle("active", x.dataset.dataset === ds));
-      await loadDataset(ds);
-      rebuildMap();
-      setupCalculator();
-    });
-  });
-  // Skill scope
+  // Skill scope — filtruje skills v bubble panelu podle relevance v catalogu
   document.querySelectorAll("#scopeToggle button").forEach(b => {
     b.addEventListener("click", () => {
       const sc = b.dataset.scope;
@@ -801,7 +763,8 @@ function setupToggles() {
 }
 
 function visibleTechs() {
-  if (VIEW.scope === "core") return DATA.technologies.filter(t => t.category === "core");
+  // 'core' = jen skills s relevance="core_ai" (z catalogu)
+  if (VIEW.scope === "core") return DATA.technologies.filter(t => t.relevance === "core_ai");
   return DATA.technologies;
 }
 
@@ -812,54 +775,69 @@ function rebuildMap() {
   setupSimulation(true);
 }
 
-function buildCoocIndex(cooc) {
-  const idx = new Map();
-  for (const c of cooc) {
-    if (!idx.has(c.source)) idx.set(c.source, []);
-    if (!idx.has(c.target)) idx.set(c.target, []);
-    idx.get(c.source).push({ partner: c.target, value: c.value });
-    idx.get(c.target).push({ partner: c.source, value: c.value });
-  }
-  for (const arr of idx.values()) arr.sort((a, b) => b.value - a.value);
-  return idx;
-}
-
 // ------------------------------------------------------------------
-// DOMAIN CHIPS
+// LIVE AGGREGATION (browser-side z people_vectors)
 // ------------------------------------------------------------------
-function renderDomainChips() {
-  const wrap = d3.select("#domainChips");
-  wrap.selectAll("*").remove();
-  for (const d of DOMAIN_ORDER) {
-    const chip = wrap.append("div")
-      .attr("class", "domain-chip")
-      .on("click", () => toggleDomain(d));
-    chip.append("span").attr("class", "dot").style("background", DOMAIN_COLORS[d]);
-    chip.append("span").text(d);
+// Místo předpočítaných stats v JSONu si počítáme:
+//   - per-skill count, seniority breakdown, top firmy, top školy
+//   - co-occurrence partners
+// Filter v Kalkulačce může recompute (currentView ← filtered vectors),
+// tj. bubble velikosti reaktivně odpovídají filtru.
+
+let currentView = null;
+let currentVectors = null;
+
+function activeVectors() {
+  // Kalkulačka aktivní filter → použít filtered vectors. Jinak ALL.
+  if (typeof calc !== "undefined" && calc &&
+      (calc.skills.length || calc.seniority.size || calc.locations.size)) {
+    return filterVectors();
   }
-  updateDomainChipStyles();
+  return DATA.people_vectors;
 }
 
-function toggleDomain(d) {
-  if (activeDomains.has(d)) activeDomains.delete(d);
-  else activeDomains.add(d);
-  updateDomainChipStyles();
-  applyDomainFilter();
+function aggregateView(vectors) {
+  const view = { bySkill: {}, cooc: {} };
+  for (const t of DATA.technologies) {
+    view.bySkill[t.id] = {
+      count: 0,
+      seniority: {},
+      companies: {},
+      schools: {},
+    };
+    view.cooc[t.id] = {};
+  }
+  for (const v of vectors) {
+    const skills = v.skills;
+    for (let i = 0; i < skills.length; i++) {
+      const s = skills[i];
+      const e = view.bySkill[s];
+      if (!e) continue;
+      e.count++;
+      if (v.seniority) e.seniority[v.seniority] = (e.seniority[v.seniority] || 0) + 1;
+      if (v.company) e.companies[v.company] = (e.companies[v.company] || 0) + 1;
+      if (v.school) e.schools[v.school] = (e.schools[v.school] || 0) + 1;
+      // Cooccurrence
+      const coocS = view.cooc[s];
+      for (let j = 0; j < skills.length; j++) {
+        if (i === j) continue;
+        const other = skills[j];
+        coocS[other] = (coocS[other] || 0) + 1;
+      }
+    }
+  }
+  return view;
 }
 
-function updateDomainChipStyles() {
-  d3.selectAll("#domainChips .domain-chip")
-    .classed("off", d => false)
-    .nodes().forEach(node => {
-      const label = node.querySelector("span:nth-child(2)").textContent;
-      node.classList.toggle("off", !activeDomains.has(label));
-    });
+function recomputeView() {
+  currentVectors = activeVectors();
+  currentView = aggregateView(currentVectors);
 }
 
-function applyDomainFilter() {
-  svg.selectAll(".bubble-group")
-    .transition().duration(300)
-    .style("opacity", d => activeDomains.has(d.top_domain) ? 1 : 0.15);
+function topEntries(obj, n) {
+  return Object.entries(obj)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, n);
 }
 
 // ------------------------------------------------------------------
@@ -868,7 +846,9 @@ function applyDomainFilter() {
 function setupSimulation(isRebuild = false) {
   const { width, height } = canvasSize();
   const techs = visibleTechs();
-  const maxCount = d3.max(techs, t => t.count) || 1;
+  // Live count z currentView (browser-side aggregation, viz recomputeView).
+  const countOf = (t) => (currentView?.bySkill[t.id]?.count) || 0;
+  const maxCount = d3.max(techs, countOf) || 1;
 
   if (isRebuild && simulation) {
     simulation.stop();
@@ -876,8 +856,9 @@ function setupSimulation(isRebuild = false) {
   }
 
   nodesData = techs.map(t => {
-    const r = 8 + Math.sqrt(t.count / maxCount) * 44;
-    return { ...t, r, r_base: r, r_active: r };
+    const count = countOf(t);
+    const r = count === 0 ? 0 : 8 + Math.sqrt(count / maxCount) * 44;
+    return { ...t, count, r, r_base: r, r_active: r };
   });
 
   // Initial positions: gentle scatter
@@ -920,7 +901,7 @@ function draw() {
           })
         );
       g.append("circle")
-        .attr("stroke", "rgba(255,255,255,0.08)")
+        .attr("stroke", "rgba(0,0,0,0.08)")
         .attr("stroke-width", 1)
         .attr("class", "bubble-circle");
       g.append("text")
@@ -930,7 +911,7 @@ function draw() {
 
   groups.select("circle")
     .attr("r", d => d.r_active)
-    .attr("fill", d => DOMAIN_COLORS[d.top_domain]);
+    .attr("fill", d => bubbleColor(d));
 
   groups.select("text")
     .attr("font-size", d => Math.max(10, Math.min(d.r_active * 0.32, 14)))
@@ -998,7 +979,7 @@ function selectTech(id) {
   svg.selectAll(".bubble-group .bubble-circle")
     .transition().duration(500)
     .attr("r", d => d.r_active)
-    .attr("stroke", d => d.id === id ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.08)")
+    .attr("stroke", d => d.id === id ? "rgba(0,0,0,0.4)" : "rgba(0,0,0,0.08)")
     .attr("stroke-width", d => d.id === id ? 2 : 1);
   svg.selectAll(".bubble-group text")
     .transition().duration(500)
@@ -1028,7 +1009,6 @@ function selectTech(id) {
     .style("opacity", d => {
       if (d.id === id) return 1;
       if ((d.r_active || 0) === 0) return 0;
-      if (!activeDomains.has(d.top_domain)) return 0.15;
       return 1;
     });
 
@@ -1047,7 +1027,7 @@ function exitConstellation() {
   svg.selectAll(".bubble-group .bubble-circle")
     .transition().duration(500)
     .attr("r", d => d.r_active)
-    .attr("stroke", "rgba(255,255,255,0.08)")
+    .attr("stroke", "rgba(0,0,0,0.08)")
     .attr("stroke-width", 1);
   svg.selectAll(".bubble-group text")
     .transition().duration(500)
@@ -1060,7 +1040,7 @@ function exitConstellation() {
   simulation.alpha(0.6).restart();
   svg.selectAll(".bubble-group")
     .transition().duration(500)
-    .style("opacity", d => activeDomains.has(d.top_domain) ? 1 : 0.15);
+    .style("opacity", 1);
   document.getElementById("detailPanel").classList.remove("show");
   hint.text("Klikni na bublinu pro detail technologie");
 }
@@ -1069,8 +1049,9 @@ function exitConstellation() {
 // TOOLTIP
 // ------------------------------------------------------------------
 function showTooltip(e, d) {
+  const meta = (d.relevance === "core_ai") ? "core AI" : (d.relevance || "");
   tooltip.html(`<div class="name">${d.id}</div>
-    <div class="meta">${CZ_NUM.format(d.count)} profesionálů · ${d.top_domain}</div>`)
+    <div class="meta">${CZ_NUM.format(d.count)} profesionálů${meta ? " · " + meta : ""}</div>`)
     .classed("show", true);
   moveTooltip(e);
 }
@@ -1086,34 +1067,53 @@ function hideTooltip() { tooltip.classed("show", false); }
 // DETAIL PANEL
 // ------------------------------------------------------------------
 function showDetail(tech, partnerMap, cohort) {
+  // Vše čteme z currentView (browser-side aggregation, updated po každé filter změně)
+  const entry = currentView?.bySkill[tech.id] || { count: 0, seniority: {}, companies: {}, schools: {} };
+  const coocMap = currentView?.cooc[tech.id] || {};
+
   document.getElementById("detailPanel").classList.add("show");
   document.getElementById("detailName").textContent = tech.id;
+  const meta = (tech.relevance === "core_ai") ? "core AI" : (tech.relevance || "");
   document.getElementById("detailCount").textContent =
-    `${CZ_NUM.format(tech.count)} profesionálů · ${tech.top_domain}`;
+    `${CZ_NUM.format(entry.count)} profesionálů${meta ? " · " + meta : ""}`;
 
-  const totalDom = d3.sum(Object.values(tech.domains));
-  renderBars("#domainBars", tech.domains, totalDom, name => DOMAIN_COLORS[name] || "var(--general)");
+  // Seniority breakdown
+  const totalSen = d3.sum(Object.values(entry.seniority));
+  renderBars("#seniorityBars", entry.seniority, totalSen, () => "var(--accent)");
 
-  const totalRole = d3.sum(Object.values(tech.roles));
-  renderBars("#roleBars", tech.roles, totalRole, () => "var(--muted)");
-
+  // Top zaměstnavatelé (top 8 live)
   const compWrap = d3.select("#companyList");
   compWrap.selectAll("*").remove();
-  if (!tech.companies.length) {
+  const companies = topEntries(entry.companies, 8);
+  if (!companies.length) {
     compWrap.append("div").style("color", "var(--muted)").style("font-size", "12px").text("Žádná data");
   } else {
-    for (const c of tech.companies) {
+    for (const [name, count] of companies) {
       const row = compWrap.append("div").attr("class", "company-row");
-      row.append("span").text(c.name);
-      row.append("span").attr("class", "count").text(c.count);
+      row.append("span").text(name);
+      row.append("span").attr("class", "count").text(count);
     }
   }
 
-  // Co-occurrence tagy: reálné partnery z people_vectors (ne z předpočítané
-  // matice). Pokud showDetail volá někdo jiný než selectTech (např. budoucí
-  // hover), fallback na předpočítaný COOC_INDEX.
+  // Top školy (top 8 live)
+  const schoolWrap = d3.select("#schoolList");
+  schoolWrap.selectAll("*").remove();
+  const schools = topEntries(entry.schools, 8);
+  if (!schools.length) {
+    schoolWrap.append("div").style("color", "var(--muted)").style("font-size", "12px").text("Žádná data");
+  } else {
+    for (const [name, count] of schools) {
+      const row = schoolWrap.append("div").attr("class", "company-row");
+      row.append("span").text(name);
+      row.append("span").attr("class", "count").text(count);
+    }
+  }
+
+  // Co-occurrence: top 8 partnerů live z currentView
   const tagWrap = d3.select("#coocTags");
   tagWrap.selectAll("*").remove();
+  // partnerMap je z constellation selection (vyfiltrovaný cohort) — prioritně.
+  // Jinak globální cooc z currentView.
   let entries = [];
   if (partnerMap) {
     entries = [...partnerMap.entries()]
@@ -1122,7 +1122,7 @@ function showDetail(tech, partnerMap, cohort) {
       .slice(0, 8)
       .map(([partner, value]) => ({ partner, value }));
   } else {
-    entries = (COOC_INDEX.get(tech.id) || []).slice(0, 8);
+    entries = topEntries(coocMap, 8).map(([partner, value]) => ({ partner, value }));
   }
   if (!entries.length) {
     tagWrap.append("div").style("color", "var(--muted)").style("font-size", "12px").text("Žádné silné kombinace");
@@ -1189,11 +1189,16 @@ function setupCalculator() {
   // Skill picker dropdown — rebuild celý select
   const sel = document.getElementById("skillSelect");
   sel.innerHTML = '<option value="">+ Přidat dovednost…</option>';
-  for (const t of DATA.technologies) {
-    if (VIEW.scope === "core" && t.category !== "core") continue;
+  // Abecedně seřazený list všech skills (core_ai + adjacent) — Boss-edit 2026-05-25.
+  // VIEW.scope toggle se neaplikuje v Kalkulačce (uživatel chce vidět vše).
+  const sortedTechs = [...DATA.technologies].sort((a, b) =>
+    a.id.localeCompare(b.id, "cs", { sensitivity: "base" })
+  );
+  for (const t of sortedTechs) {
+    const count = currentView?.bySkill[t.id]?.count || 0;
     const opt = document.createElement("option");
     opt.value = t.id;
-    opt.textContent = `${t.id}  (${CZ_NUM.format(t.count)})`;
+    opt.textContent = `${t.id}  (${CZ_NUM.format(count)})`;
     sel.appendChild(opt);
   }
   // Reset picked skills UI
@@ -1289,19 +1294,21 @@ function updateResult() {
   const target = matched.length;
   const from = lastDisplayed;
   const el = document.getElementById("resultCount");
-  // Přerušit běžící transition na tomto elementu — bez interrupt by se nová
-  // a stará tweeny překryly a finální text byl nedeterministický.
   const sel = d3.select(el).interrupt();
   sel.transition().duration(400).tween("count", function () {
     const node = this;
     const i = d3.interpolateNumber(from, target);
     return t => { node.textContent = CZ_NUM.format(Math.round(i(t))); };
   });
-  // Pojistka — po skončení animace explicitně zapiš target. Když transition
-  // selže (D3 v7 občas drop tweenů při rapid resize), uživatel pořád vidí
-  // správnou hodnotu, ne mezistav.
   setTimeout(() => { el.textContent = CZ_NUM.format(target); }, 450);
   lastDisplayed = target;
+
+  // Live recompute view — bubble velikosti a detail panel se reaktivně
+  // přepočítají podle aktuálního filtru. Když uživatel klikne „Senior + Praha
+  // + Python", bubble Pythonu se zmenší podle té cohortry.
+  currentVectors = matched;
+  currentView = aggregateView(currentVectors);
+  rebuildMap();
   renderBreakdown(matched);
 }
 
@@ -1361,21 +1368,20 @@ function renderBreakdown(matched) {
     </div>`;
   }).join("");
 
-  // ── Top role ──
-  const roleCounts = new Map();
+  // ── Top školy ──
+  const schoolCounts = new Map();
   for (const p of matched) {
-    if (!p.role) continue;
-    roleCounts.set(p.role, (roleCounts.get(p.role) || 0) + 1);
+    if (!p.school) continue;
+    schoolCounts.set(p.school, (schoolCounts.get(p.school) || 0) + 1);
   }
-  const topRoles = [...roleCounts.entries()]
-    .sort((a, b) => b[1] - a[1]).slice(0, 5);
-  const rolesEl = document.getElementById("bdRoles");
-  if (!topRoles.length) {
-    rolesEl.innerHTML = `<li class="bd-empty">Bez role.</li>`;
+  const topSchools = [...schoolCounts.entries()]
+    .sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const schoolsEl = document.getElementById("bdSchools");
+  if (!topSchools.length) {
+    schoolsEl.innerHTML = `<li class="bd-empty">Bez školy v datasetu.</li>`;
   } else {
-    rolesEl.innerHTML = topRoles.map(([r, n]) => {
-      const label = ROLE_LABEL[r] || r;
-      return `<li><span class="bd-name">${escapeHtml(label)}</span><span class="bd-count">${CZ_NUM.format(n)}</span></li>`;
+    schoolsEl.innerHTML = topSchools.map(([s, n]) => {
+      return `<li><span class="bd-name">${escapeHtml(s)}</span><span class="bd-count">${CZ_NUM.format(n)}</span></li>`;
     }).join("");
   }
 }

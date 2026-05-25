@@ -1,28 +1,21 @@
 #!/usr/bin/env python3
-"""Czech AI Talent Map — data pipeline.
+"""Czech AI Talent Map — data pipeline (live-aggregation, 0 LLM).
 
-Vstup:  ../ai-market-mirror-cz/data.db (SQLite, kvalifikovaná populace).
-Výstup: public/data.json (statický payload pro D3 frontend).
+Vstup:  ../ai-market-mirror-cz/data.db (SQLite, pass populace ze S2).
+Výstup: public/data.json — minimal payload pro browser-side live aggregation.
 
-Jeden běh ~1 s na 4 468 lidech. Spouští se lokálně 1× měsíčně po update DB.
+Žádné per-skill aggregates v JSONu. Frontend si počty / top firmy / top školy /
+co-occurrence dopočítává live z `people_vectors[]` při každé filter change.
+Tím se bubble velikosti reaktivně updatují podle aktuálního filtru.
 
-Klíčová rozhodnutí oproti dev spec v2.0:
-- Skill source = `mm_skills_core` + `mm_skills_adjacent` (deterministická
-  Stanice 4b, kuratovaný katalog, žádný cap), NE legacy `mm_tech_stack`.
-- Seniority mapping: junior→Junior, ic+<5y→Mid, ic+≥5y→Senior, lead/architect
-  →Lead, director_plus→C-level.
-- Location: Prague (Praha), Brno, Ostrava, Abroad (country!=CZ), Remote (jiné CZ).
-- AI domain → spec barvy: nlp_llm→NLP/LLM, computer_vision→Computer Vision,
-  genai→Generative AI, classic_ml→Classic ML, robotics→Robotics, other→General.
-
-Pipeline generuje 3 datasety podle vybrané populace (toggle ve frontendu):
-- data.json (default) — celá study population (core_aiml + data + adjacent)
-- data_engineers.json — jen core_aiml + data (skuteční AI/ML engineers)
-- data_adjacent.json — jen segment adjacent (produktoví, výzkumní, AI-aware)
-
-Každý dataset má vlastní top 40, co-occurrence matrix a people_vectors.
-Skill kategorie (core_ai / adjacent) je v `technologies[].category` pro
-frontend toggle „Jen core skills" / „Core + adjacent".
+Payload obsahuje:
+- `stats`: {total_professionals, total_companies, generated_at, k_anonymity}
+- `technologies[]`: per-skill metadata jen `{id, name, type, relevance}` z catalogu.
+  Žádný count — frontend si dopočítá. Filtrováno `relevance != 'non_ai'`,
+  posbíráno top N podle global frequency.
+- `people_vectors[]`: per-osoba {skills, seniority, location, company, school}.
+  Skills filtrované na top N (= co se v UI dá vybrat). Company + school s
+  k-anonymity guard ≥5.
 
 Usage:
     python3 scripts/07_cooccurrence.py
@@ -33,44 +26,17 @@ from __future__ import annotations
 import argparse
 import json
 import sqlite3
-from collections import Counter, defaultdict
+from collections import Counter
 from datetime import datetime
 from pathlib import Path
 
-STUDY_SEGMENTS = ("core_aiml", "data", "adjacent")
+import yaml
+
 TOP_N_TECH = 40
-COOCCURRENCE_THRESHOLD = 15
-TOP_COMPANIES_PER_TECH = 6
-# k-anonymity threshold: firma se v per-person vektoru objeví jen tehdy,
-# když má v datasetu alespoň tolik lidí. Chrání před deanonymizací malých firem
-# kombinací (skills + seniority + location + company). Role se nefiltruje —
-# kanonický enum (ml_engineer, data_scientist…) má z definice širokou populaci.
-COMPANY_ANON_K = 5
-
-DOMAIN_LABEL = {
-    "nlp_llm": "NLP / LLM",
-    "computer_vision": "Computer Vision",
-    "genai": "Generative AI",
-    "classic_ml": "Classic ML",
-    "robotics": "Robotics",
-    "other": "General",
-}
-
-ROLE_LABEL = {
-    "ml_engineer": "ML Engineer",
-    "research_scientist": "Research Scientist",
-    "data_scientist": "Data Scientist",
-    "data_engineer": "Data Engineer",
-    "mlops_engineer": "MLOps Engineer",
-    "ai_product": "AI Product",
-    "software_engineer": "Software Engineer",
-    "manager": "Manager",
-    "other": "Other",
-}
+K_ANON = 5
 
 
 def _location_bucket(loc_text: str, country_code: str) -> str:
-    """Pětibucketové mapování pro Calculator filter."""
     if country_code and country_code.upper() != "CZ":
         return "Abroad"
     lt = (loc_text or "").lower()
@@ -80,7 +46,7 @@ def _location_bucket(loc_text: str, country_code: str) -> str:
         return "Brno"
     if "ostrava" in lt:
         return "Ostrava"
-    return "Remote"   # CZ profil mimo velkých 3 měst — bucket „Remote" per spec
+    return "Remote"
 
 
 def _seniority_bucket(mm_seniority: str, total_years) -> str | None:
@@ -90,7 +56,6 @@ def _seniority_bucket(mm_seniority: str, total_years) -> str | None:
     if mm_seniority == "junior":
         return "Junior"
     if mm_seniority == "ic":
-        # IC = individual contributor, split podle let praxe
         if isinstance(total_years, (int, float)) and total_years < 5:
             return "Mid"
         return "Senior"
@@ -101,230 +66,204 @@ def _seniority_bucket(mm_seniority: str, total_years) -> str | None:
     return None
 
 
-def _profile_skills(core_json, adj_json) -> tuple:
-    """Vrací (all_skills_list, category_map={skill: 'core'|'adjacent'})."""
-    skills = []
-    category = {}
-    for raw, cat in ((core_json, "core"), (adj_json, "adjacent")):
-        if not raw:
-            continue
-        try:
-            for s in json.loads(raw):
-                skills.append(s)
-                category[s] = cat
-        except (TypeError, json.JSONDecodeError):
-            continue
-    return skills, category
+def load_catalog(catalog_path: Path) -> dict:
+    with catalog_path.open(encoding="utf-8") as f:
+        data = yaml.safe_load(f) or {}
+    out = {}
+    for s in data.get("skills") or []:
+        c = s.get("canonical")
+        if c:
+            out[c] = {
+                "type": s.get("type", "unknown"),
+                "relevance": s.get("relevance", "unknown"),
+            }
+    return out
 
 
-def build_payload(db_path: Path, segments: tuple) -> dict:
+def build_payload(db_path: Path, catalog: dict) -> dict:
     conn = sqlite3.connect(str(db_path))
     conn.row_factory = sqlite3.Row
-    placeholders = ",".join("?" * len(segments))
     rows = conn.execute(
-        f"SELECT id, mm_segment, mm_seniority, mm_role, mm_ai_domain, "
-        f"mm_current_company, mm_career_metrics, mm_clean_json, "
-        f"mm_skills_core, mm_skills_adjacent FROM people "
-        f"WHERE mm_segment IN ({placeholders})",
-        segments,
+        """
+        SELECT mm_skills, mm_seniority, mm_career_metrics, mm_clean_json,
+               mm_current_company, mm_current_company_li_id,
+               mm_school_canonical
+        FROM people
+        WHERE mm_prefilter='pass' AND mm_skills IS NOT NULL
+        """
     ).fetchall()
     conn.close()
 
-    # Pass 1: skill frequency napříč populací (pro výběr top 40)
     skill_freq: Counter = Counter()
-    skill_category: dict = {}        # canonical → 'core' | 'adjacent'
-    per_profile_skills: list = []   # [(skills_set, dom, role, company, location, seniority)]
+    company_counts: Counter = Counter()
+    school_counts: Counter = Counter()
+    company_li_ids: set = set()
+    per_profile: list = []
+
     for r in rows:
-        skills, profile_categories = _profile_skills(r["mm_skills_core"], r["mm_skills_adjacent"])
-        skill_category.update(profile_categories)
-        if not skills:
-            # Profil bez skillů — do calculator pojde s prázdným listem, ale
-            # do co-occurrence/top-tech nepřispěje. Stejně přidám pro celkový count.
-            pass
-        skills_set = set(skills)
-        for s in skills_set:
-            skill_freq[s] += 1
+        try:
+            skills = json.loads(r["mm_skills"] or "[]")
+        except json.JSONDecodeError:
+            skills = []
 
         metrics = {}
         if r["mm_career_metrics"]:
             try:
                 metrics = json.loads(r["mm_career_metrics"])
             except (TypeError, json.JSONDecodeError):
-                metrics = {}
-        total_years = metrics.get("total_years")
+                pass
 
         clean = {}
         if r["mm_clean_json"]:
             try:
                 clean = json.loads(r["mm_clean_json"])
             except (TypeError, json.JSONDecodeError):
-                clean = {}
+                pass
+
         location = _location_bucket(
             clean.get("location_text", ""), clean.get("country_code", "")
         )
-        seniority = _seniority_bucket(r["mm_seniority"], total_years)
+        seniority = _seniority_bucket(r["mm_seniority"], metrics.get("total_years"))
 
-        per_profile_skills.append({
+        skills_set = set(skills)
+        for s in skills_set:
+            skill_freq[s] += 1
+        if r["mm_current_company"]:
+            company_counts[r["mm_current_company"]] += 1
+        if r["mm_current_company_li_id"]:
+            company_li_ids.add(r["mm_current_company_li_id"])
+        if r["mm_school_canonical"]:
+            school_counts[r["mm_school_canonical"]] += 1
+
+        per_profile.append({
             "skills": skills_set,
-            "skills_list": skills,   # zachovat pořadí pro people_vectors
-            "domain": r["mm_ai_domain"] or "other",
-            "role": r["mm_role"],
-            "company": r["mm_current_company"],
-            "location": location,
             "seniority": seniority,
+            "location": location,
+            "company": r["mm_current_company"],
+            "school": r["mm_school_canonical"],
         })
 
-    top_techs = [t for t, _ in skill_freq.most_common(TOP_N_TECH)]
+    # K-anon sets
+    safe_companies = {c for c, n in company_counts.items() if n >= K_ANON}
+    safe_schools = {s for s, n in school_counts.items() if n >= K_ANON}
+
+    # Skill relevance sets z catalogu
+    core_ai_skills = {c for c, m in catalog.items() if m.get("relevance") == "core_ai"}
+    ai_relevant = core_ai_skills | {
+        c for c, m in catalog.items() if m.get("relevance") == "adjacent"
+    }
+
+    # FILTR STUDIE: pass-S2 + má alespoň 1 core_ai skill.
+    # Lidé bez core_ai skillu (jen non_ai / generic adjacent) do studie nepatří —
+    # nejsou to AI talent.
+    per_profile = [p for p in per_profile if p["skills"] & core_ai_skills]
+
+    # Top N skills — vyfiltrovat non_ai pryč, jen core_ai + adjacent.
+    # Recompute skill_freq po core_ai filtru — počty se mírně sníží.
+    skill_freq = Counter()
+    for p in per_profile:
+        for s in p["skills"]:
+            skill_freq[s] += 1
+
+    top_techs = [
+        t for t, _ in skill_freq.most_common()
+        if t in ai_relevant
+    ][:TOP_N_TECH]
     top_set = set(top_techs)
 
-    # Pass 2: pro každou top tech agregovat domain/role/companies breakdown
-    tech_aggregates = {}
-    for tech in top_techs:
-        tech_aggregates[tech] = {
-            "id": tech,
-            "count": skill_freq[tech],
-            "domains_raw": Counter(),
-            "roles_raw": Counter(),
-            "companies_raw": Counter(),
-        }
-
-    for p in per_profile_skills:
-        for tech in p["skills"]:
-            if tech not in tech_aggregates:
-                continue
-            tech_aggregates[tech]["domains_raw"][p["domain"]] += 1
-            if p["role"]:
-                tech_aggregates[tech]["roles_raw"][p["role"]] += 1
-            if p["company"]:
-                tech_aggregates[tech]["companies_raw"][p["company"]] += 1
-
+    # Technology metadata (žádný count — frontend si dopočítá live)
     technologies = []
-    for tech, agg in tech_aggregates.items():
-        domains = {DOMAIN_LABEL.get(k, k): v for k, v in agg["domains_raw"].items()}
-        top_domain_raw = (
-            agg["domains_raw"].most_common(1)[0][0]
-            if agg["domains_raw"] else "other"
-        )
-        roles = {
-            ROLE_LABEL.get(k, k): v
-            for k, v in agg["roles_raw"].most_common(8)
-        }
-        companies = [
-            {"name": c, "count": n}
-            for c, n in agg["companies_raw"].most_common(TOP_COMPANIES_PER_TECH)
-        ]
+    for t in top_techs:
+        meta = catalog.get(t, {})
         technologies.append({
-            "id": tech,
-            "category": skill_category.get(tech, "adjacent"),  # core | adjacent
-            "count": agg["count"],
-            "top_domain": DOMAIN_LABEL.get(top_domain_raw, top_domain_raw),
-            "domains": domains,
-            "roles": roles,
-            "companies": companies,
+            "id": t,
+            "name": t,
+            "type": meta.get("type", "unknown"),
+            "relevance": meta.get("relevance", "unknown"),
         })
 
-    # Pass 3: co-occurrence matrix (top 40 × top 40, threshold 15)
-    pair_freq: Counter = Counter()
-    for p in per_profile_skills:
-        relevant = sorted(p["skills"] & top_set)
-        for i, a in enumerate(relevant):
-            for b in relevant[i + 1:]:
-                pair_freq[(a, b)] += 1
-
-    cooccurrence = [
-        {"source": a, "target": b, "value": v}
-        for (a, b), v in pair_freq.items()
-        if v >= COOCCURRENCE_THRESHOLD
-    ]
-    cooccurrence.sort(key=lambda x: -x["value"])
-
-    # Pass 4a: spočítat safe_companies (k-anonymity guard) — firmy s >= K lidi
-    # v datasetu, aby se nedaly deanonymizovat kombinací filtrů v Calculatoru.
-    company_counts: Counter = Counter()
-    for p in per_profile_skills:
-        if p["company"]:
-            company_counts[p["company"]] += 1
-    safe_companies = {c for c, n in company_counts.items() if n >= COMPANY_ANON_K}
-
-    # Pass 4b: people_vectors (anonymized) pro Talent Calculator
+    # People_vectors (k-anon company + school, skills filtered na top N)
     people_vectors = []
-    for p in per_profile_skills:
-        # Filter skills na top 40 — calculator pracuje jen s nimi (filtry jsou
-        # nabízené z top 40, nic jiného uživatel nevybere)
+    for p in per_profile:
         relevant_skills = sorted(p["skills"] & top_set)
-        vec = {
+        people_vectors.append({
             "skills": relevant_skills,
             "seniority": p["seniority"],
             "location": p["location"],
-            "role": p["role"] or None,
             "company": p["company"] if p["company"] in safe_companies else None,
-        }
-        people_vectors.append(vec)
+            "school": p["school"] if p["school"] in safe_schools else None,
+        })
 
-    # Total companies — unique current companies napříč qualified population
-    unique_companies = len({
-        p["company"] for p in per_profile_skills if p["company"]
-    })
+    # Total companies — unikátní firmy mezi lidmi v studii (po core_ai filtru)
+    study_company_li_ids = set()
+    for r in rows:
+        try:
+            sk = set(json.loads(r["mm_skills"] or "[]"))
+        except json.JSONDecodeError:
+            sk = set()
+        if sk & core_ai_skills and r["mm_current_company_li_id"]:
+            study_company_li_ids.add(r["mm_current_company_li_id"])
 
     return {
+        "version": "v3.1-core-ai-filter",
         "stats": {
-            "total_professionals": len(per_profile_skills),
-            "total_companies": unique_companies,
+            "total_professionals": len(per_profile),
+            "total_companies": len(study_company_li_ids),
             "generated_at": datetime.now().isoformat(timespec="seconds"),
             "skills_in_top": len(top_techs),
-            "cooccurrence_threshold": COOCCURRENCE_THRESHOLD,
+            "k_anonymity": K_ANON,
+            "scope": "mm_prefilter='pass' AND has ≥1 core_ai skill",
         },
         "technologies": technologies,
-        "cooccurrence": cooccurrence,
         "people_vectors": people_vectors,
     }
-
-
-DATASETS = [
-    # (filename, label, segments)
-    ("data.json",          "all",       ("core_aiml", "data", "adjacent")),
-    ("data_engineers.json", "engineers", ("core_aiml", "data")),
-    ("data_adjacent.json",  "adjacent",  ("adjacent",)),
-]
 
 
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     project_dir = Path(__file__).resolve().parent.parent
     default_db = (project_dir.parent / "ai-market-mirror-cz" / "data.db").resolve()
+    default_catalog = (
+        project_dir.parent / "ai-market-mirror-cz" / "pipeline" / "taxonomy"
+        / "skills_catalog.yaml"
+    ).resolve()
     default_out_dir = project_dir / "public"
-    p.add_argument("--db", default=str(default_db), help="path to data.db")
-    p.add_argument("--out-dir", default=str(default_out_dir),
-                   help="adresář kam se zapíšou všechny 3 datasety")
+    p.add_argument("--db", default=str(default_db))
+    p.add_argument("--catalog", default=str(default_catalog))
+    p.add_argument("--out-dir", default=str(default_out_dir))
     args = p.parse_args()
 
     db_path = Path(args.db)
     out_dir = Path(args.out_dir)
+    catalog_path = Path(args.catalog)
     if not db_path.exists():
         raise SystemExit(f"DB not found: {db_path}")
+    if not catalog_path.exists():
+        raise SystemExit(f"Catalog not found: {catalog_path}")
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    report = []
-    for filename, label, segments in DATASETS:
-        payload = build_payload(db_path, segments)
-        payload["stats"]["dataset_label"] = label
-        payload["stats"]["segments"] = list(segments)
-        out_path = out_dir / filename
-        out_path.write_text(
-            json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8"
-        )
-        report.append({
-            "dataset": label,
-            "professionals": payload["stats"]["total_professionals"],
-            "companies": payload["stats"]["total_companies"],
-            "technologies": len(payload["technologies"]),
-            "cooccurrence_pairs": len(payload["cooccurrence"]),
-            "people_vectors": len(payload["people_vectors"]),
-            "output": str(out_path),
-            "size_kb": round(out_path.stat().st_size / 1024, 1),
-        })
+    catalog = load_catalog(catalog_path)
+    payload = build_payload(db_path, catalog)
+    out_path = out_dir / "data.json"
+    out_path.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
 
-    print(json.dumps({"success": True, "datasets": report}, ensure_ascii=False, indent=2))
+    # Smazat legacy datasety
+    for legacy in ("data_engineers.json", "data_adjacent.json"):
+        p_legacy = out_dir / legacy
+        if p_legacy.exists():
+            p_legacy.unlink()
+
+    print(json.dumps({
+        "success": True,
+        "professionals": payload["stats"]["total_professionals"],
+        "companies": payload["stats"]["total_companies"],
+        "technologies": len(payload["technologies"]),
+        "people_vectors": len(payload["people_vectors"]),
+        "output": str(out_path),
+        "size_kb": round(out_path.stat().st_size / 1024, 1),
+    }, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":
