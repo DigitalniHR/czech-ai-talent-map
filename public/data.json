@@ -3,7 +3,7 @@
   "stats": {
     "total_professionals": 4001,
     "total_companies": 1570,
-    "generated_at": "2026-05-25T12:07:43",
+    "generated_at": "2026-05-25T14:36:17",
     "skills_in_top": 40,
     "k_anonymity": 5,
     "scope": "mm_prefilter='pass' AND has ≥1 core_ai skill"
@@ -196,14 +196,14 @@
       "relevance": "core_ai"
     },
     {
-      "id": "Bash",
-      "name": "Bash",
+      "id": "Google Cloud Platform",
+      "name": "Google Cloud Platform",
       "type": "technology",
       "relevance": "adjacent"
     },
     {
-      "id": "Google Cloud Platform",
-      "name": "Google Cloud Platform",
+      "id": "Bash",
+      "name": "Bash",
       "type": "technology",
       "relevance": "adjacent"
     },
@@ -373,7 +373,7 @@
       "skills": [
         "Artificial Intelligence"
       ],
-      "seniority": "C-level",
+      "seniority": "Junior",
       "location": "Prague",
       "company": null,
       "school": null
@@ -1462,7 +1462,7 @@
         "Retrieval Augmented Generation",
         "SQL"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "Raiffeisenbank Česká republika",
       "school": "Univerzita Komenského"
@@ -1500,7 +1500,7 @@
         "Large Language Models",
         "OpenAI"
       ],
-      "seniority": "C-level",
+      "seniority": "Lead",
       "location": "Remote",
       "company": "ŠKODA AUTO a.s.",
       "school": "University of Cambridge"
@@ -2812,7 +2812,7 @@
         "Python",
         "TensorFlow"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Ostrava",
       "company": null,
       "school": null
@@ -3905,7 +3905,7 @@
         "Python",
         "SQL"
       ],
-      "seniority": "Lead",
+      "seniority": "Senior",
       "location": "Brno",
       "company": "Innovatrics",
       "school": "VUT v Brně"
@@ -4060,7 +4060,7 @@
         "Python",
         "R"
       ],
-      "seniority": "Junior",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "Profinit",
       "school": "ČVUT v Praze"
@@ -4361,7 +4361,7 @@
         "Data Science",
         "Machine Learning"
       ],
-      "seniority": "Lead",
+      "seniority": "Senior",
       "location": "Brno",
       "company": "Kyndryl",
       "school": "Univerzita Komenského"
@@ -5119,7 +5119,7 @@
     },
     {
       "skills": [],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Remote",
       "company": null,
       "school": null
@@ -5417,7 +5417,7 @@
       "skills": [
         "Large Language Models"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": null,
       "school": "VŠE Praha"
@@ -7256,7 +7256,7 @@
         "Natural Language Processing",
         "Python"
       ],
-      "seniority": "Lead",
+      "seniority": "Senior",
       "location": "Remote",
       "company": "Digiteq Automotive",
       "school": "UPOL Olomouc"
@@ -7747,7 +7747,7 @@
         "Large Language Models",
         "Retrieval Augmented Generation"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Brno",
       "company": null,
       "school": "VUT v Brně"
@@ -7843,7 +7843,7 @@
         "R",
         "SQL"
       ],
-      "seniority": "Lead",
+      "seniority": "Senior",
       "location": "Prague",
       "company": null,
       "school": "Masarykova univerzita"
@@ -7883,7 +7883,7 @@
         "Machine Learning",
         "Prompt Engineering"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": null,
       "school": "ČVUT v Praze"
@@ -11401,7 +11401,7 @@
         "Large Language Models",
         "Prompt Engineering"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "Deloitte",
       "school": "UPOL Olomouc"
@@ -12253,7 +12253,7 @@
       "skills": [
         "Prompt Engineering"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Remote",
       "company": null,
       "school": null
@@ -12785,7 +12785,7 @@
         "Machine Learning",
         "Natural Language Processing"
       ],
-      "seniority": "Lead",
+      "seniority": "Senior",
       "location": "Prague",
       "company": null,
       "school": "Univerzita Komenského"
@@ -12887,7 +12887,7 @@
         "OpenAI",
         "Python"
       ],
-      "seniority": "Lead",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "Bull",
       "school": null
@@ -13887,7 +13887,7 @@
         "Retrieval Augmented Generation",
         "SQL"
       ],
-      "seniority": "C-level",
+      "seniority": "Lead",
       "location": "Ostrava",
       "company": null,
       "school": "VŠB-TUO Ostrava"
@@ -14336,7 +14336,7 @@
         "Python",
         "SQL"
       ],
-      "seniority": "C-level",
+      "seniority": "Lead",
       "location": "Prague",
       "company": null,
       "school": null
@@ -14773,7 +14773,7 @@
         "Retrieval Augmented Generation",
         "SQL"
       ],
-      "seniority": "C-level",
+      "seniority": "Mid",
       "location": "Remote",
       "company": "Barclays",
       "school": "VŠE Praha"
@@ -14805,7 +14805,7 @@
         "R",
         "SQL"
       ],
-      "seniority": "Lead",
+      "seniority": "Senior",
       "location": "Prague",
       "company": null,
       "school": "Univerzita Karlova"
@@ -14860,7 +14860,7 @@
         "C++",
         "OpenAI"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "RESULMATIC",
       "school": "ZČU Plzeň"
@@ -14893,7 +14893,7 @@
       "skills": [
         "Generative AI"
       ],
-      "seniority": "Lead",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "FNZ",
       "school": null
@@ -15123,7 +15123,7 @@
       "skills": [
         "Large Language Models"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": null,
       "school": "Masarykova univerzita"
@@ -15338,7 +15338,7 @@
         "Machine Learning",
         "SQL"
       ],
-      "seniority": "Junior",
+      "seniority": "Senior",
       "location": "Prague",
       "company": null,
       "school": null
@@ -16062,7 +16062,7 @@
         "MySQL",
         "Power BI"
       ],
-      "seniority": "Lead",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "Sympulse",
       "school": "ČVUT v Praze"
@@ -16883,7 +16883,7 @@
         "Python",
         "SQL"
       ],
-      "seniority": "C-level",
+      "seniority": "Mid",
       "location": "Prague",
       "company": "Škoda Auto",
       "school": null
@@ -17507,7 +17507,7 @@
       "skills": [
         "Artificial Intelligence"
       ],
-      "seniority": "Lead",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "Raiffeisenbank Česká republika",
       "school": "VŠE Praha"
@@ -18448,7 +18448,7 @@
         "Retrieval Augmented Generation",
         "SQL"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": null,
       "school": null
@@ -18886,7 +18886,7 @@
         "Python",
         "SQL"
       ],
-      "seniority": "C-level",
+      "seniority": "Lead",
       "location": "Prague",
       "company": null,
       "school": "Univerzita Karlova"
@@ -20003,7 +20003,7 @@
         "SQL",
         "TensorFlow"
       ],
-      "seniority": "Lead",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "IBM",
       "school": "Univerzita Karlova"
@@ -20111,7 +20111,7 @@
         "Linux",
         "Machine Learning"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "MSD Czech Republic",
       "school": null
@@ -20169,7 +20169,7 @@
         "Python",
         "SQL"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "Czech University of Life Sciences Prague",
       "school": "ČZU Praha"
@@ -20405,7 +20405,7 @@
         "DevOps",
         "Machine Learning"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Brno",
       "company": "ARTIN",
       "school": "VUT v Brně"
@@ -20426,7 +20426,7 @@
         "Python",
         "SQL"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": null,
       "school": null
@@ -20522,7 +20522,7 @@
         "Machine Learning",
         "OpenAI"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "Self Employed",
       "school": null
@@ -20822,7 +20822,7 @@
       "skills": [
         "Computer Vision"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": null,
       "school": null
@@ -20898,7 +20898,7 @@
       "skills": [
         "Machine Learning"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Remote",
       "company": "Charles University",
       "school": "Univerzita Karlova"
@@ -20952,7 +20952,7 @@
         "C++",
         "Neural Networks"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": null,
       "school": "ČVUT v Praze"
@@ -21040,7 +21040,7 @@
         "Machine Learning",
         "Python"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": null,
       "school": null
@@ -21078,7 +21078,7 @@
         "Linux",
         "Python"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "Czech Technical University in Prague",
       "school": "ČVUT v Praze"
@@ -21365,7 +21365,7 @@
         "Deep Learning",
         "Machine Learning"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Remote",
       "company": null,
       "school": "ČVUT v Praze"
@@ -22651,7 +22651,7 @@
         "Machine Learning",
         "Python"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Remote",
       "company": null,
       "school": null
@@ -23714,7 +23714,7 @@
         "Python",
         "TensorFlow"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Remote",
       "company": "Barclays",
       "school": "TUL Liberec"
@@ -23870,7 +23870,7 @@
         "Machine Learning",
         "Python"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "Charles University",
       "school": "Univerzita Karlova"
@@ -24899,7 +24899,7 @@
         "Power BI",
         "SQL"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "ŠKODA AUTO a.s.",
       "school": "VŠE Praha"
@@ -25256,7 +25256,7 @@
         "Python",
         "SQL"
       ],
-      "seniority": "Junior",
+      "seniority": "Senior",
       "location": "Remote",
       "company": null,
       "school": "Masarykova univerzita"
@@ -27550,7 +27550,7 @@
       "skills": [
         "Machine Learning"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Remote",
       "company": "Czech Technical University in Prague",
       "school": null
@@ -29756,7 +29756,7 @@
         "Deep Learning",
         "Machine Learning"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "Czech Technical University in Prague",
       "school": null
@@ -29820,7 +29820,7 @@
         "R",
         "SQL"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "Barclays",
       "school": null
@@ -29854,7 +29854,7 @@
         "SQL",
         "Scikit-Learn"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": null,
       "school": "ČVUT v Praze"
@@ -32561,7 +32561,7 @@
       "skills": [
         "Machine Learning"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "Czech University of Life Sciences Prague",
       "school": null
@@ -32648,7 +32648,7 @@
         "R",
         "SQL"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "Komerční banka",
       "school": "VŠE Praha"
@@ -32713,7 +32713,7 @@
         "Deep Learning",
         "Machine Learning"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "Czech Technical University in Prague",
       "school": null
@@ -33001,7 +33001,7 @@
         "Neural Networks",
         "SQL"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Remote",
       "company": "Charles University",
       "school": "Univerzita Karlova"
@@ -33052,7 +33052,7 @@
         "Machine Learning",
         "Natural Language Processing"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Brno",
       "company": "Brno University of Technology",
       "school": "VUT v Brně"
@@ -33293,7 +33293,7 @@
         "NumPy",
         "Python"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "Czech Technical University in Prague",
       "school": null
@@ -34106,7 +34106,7 @@
         "Machine Learning",
         "OpenAI"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Brno",
       "company": null,
       "school": "Univerzita Karlova"
@@ -34642,7 +34642,7 @@
         "OpenAI",
         "Retrieval Augmented Generation"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "Česká spořitelna",
       "school": "VŠE Praha"
@@ -34767,7 +34767,7 @@
       "skills": [
         "Generative AI"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "NN",
       "school": null
@@ -34902,7 +34902,7 @@
         "Machine Learning",
         "Python"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": null,
       "school": null
@@ -35320,7 +35320,7 @@
         "Microsoft Azure",
         "OpenAI"
       ],
-      "seniority": "C-level",
+      "seniority": "Lead",
       "location": "Prague",
       "company": "Microsoft",
       "school": "VUT v Brně"
@@ -35332,7 +35332,7 @@
         "Machine Learning",
         "Natural Language Processing"
       ],
-      "seniority": "Lead",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "IBM",
       "school": "VŠE Praha"
@@ -35895,7 +35895,7 @@
       "skills": [
         "Generative AI"
       ],
-      "seniority": "Lead",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "CSOB",
       "school": null
@@ -36238,7 +36238,7 @@
         "Machine Learning",
         "Python"
       ],
-      "seniority": "Lead",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "CSOB",
       "school": "VŠE Praha"
@@ -37578,7 +37578,7 @@
         "Python",
         "Retrieval Augmented Generation"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": null,
       "school": null
@@ -37647,7 +37647,7 @@
         "Generative AI",
         "OpenAI"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": null,
       "school": null
@@ -37796,7 +37796,7 @@
         "Power BI",
         "Python"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "Škoda Auto",
       "school": null
@@ -38539,7 +38539,7 @@
       "skills": [
         "Natural Language Processing"
       ],
-      "seniority": "C-level",
+      "seniority": "Lead",
       "location": "Prague",
       "company": null,
       "school": "Univerzita Karlova"
@@ -39330,7 +39330,7 @@
         "Large Language Models",
         "Python"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": null,
       "school": null
@@ -39401,7 +39401,7 @@
         "C++",
         "Generative AI"
       ],
-      "seniority": "C-level",
+      "seniority": "Junior",
       "location": "Prague",
       "company": null,
       "school": null
@@ -39516,7 +39516,7 @@
     },
     {
       "skills": [],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "CGI",
       "school": "VŠE Praha"
@@ -40868,7 +40868,7 @@
       "skills": [
         "Machine Learning"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "SAP",
       "school": null
@@ -41260,7 +41260,7 @@
         "Artificial Intelligence",
         "R"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Brno",
       "company": "Blogic",
       "school": null
@@ -41298,7 +41298,7 @@
       "skills": [
         "Artificial Intelligence"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": null,
       "school": null
@@ -41479,7 +41479,7 @@
         "PostgreSQL",
         "PyTorch"
       ],
-      "seniority": "Lead",
+      "seniority": "Senior",
       "location": "Remote",
       "company": "Tipsport",
       "school": "ZČU Plzeň"
@@ -41535,7 +41535,7 @@
         "MySQL",
         "Python"
       ],
-      "seniority": "Lead",
+      "seniority": "Senior",
       "location": "Brno",
       "company": null,
       "school": "VUT v Brně"
@@ -41819,7 +41819,7 @@
         "Large Language Models",
         "Python"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": null,
       "school": null
@@ -41830,7 +41830,7 @@
         "C++",
         "Neural Networks"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Brno",
       "company": "Chyron",
       "school": "Masarykova univerzita"
@@ -41891,7 +41891,7 @@
     },
     {
       "skills": [],
-      "seniority": "Lead",
+      "seniority": "Senior",
       "location": "Brno",
       "company": "Innovatrics",
       "school": "VUT v Brně"
@@ -41998,7 +41998,7 @@
         "Prompt Engineering",
         "Python"
       ],
-      "seniority": "C-level",
+      "seniority": "Mid",
       "location": "Brno",
       "company": null,
       "school": "Masarykova univerzita"
@@ -42286,7 +42286,7 @@
       "skills": [
         "Artificial Intelligence"
       ],
-      "seniority": "Lead",
+      "seniority": "Senior",
       "location": "Ostrava",
       "company": null,
       "school": "Masarykova univerzita"
@@ -42647,7 +42647,7 @@
       "skills": [
         "Natural Language Processing"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Remote",
       "company": null,
       "school": null
@@ -42752,7 +42752,7 @@
         "Large Language Models",
         "Retrieval Augmented Generation"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Brno",
       "company": null,
       "school": null
@@ -42998,7 +42998,7 @@
         "Artificial Intelligence",
         "C#"
       ],
-      "seniority": "Lead",
+      "seniority": "Senior",
       "location": "Brno",
       "company": "Kontent.ai",
       "school": "Masarykova univerzita"
@@ -43131,7 +43131,7 @@
         "Linux",
         "Python"
       ],
-      "seniority": "Lead",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "ARTIN",
       "school": "ČVUT v Praze"
@@ -43615,7 +43615,7 @@
         "Microsoft Azure",
         "Retrieval Augmented Generation"
       ],
-      "seniority": "C-level",
+      "seniority": "Lead",
       "location": "Prague",
       "company": "PwC",
       "school": null
@@ -44424,7 +44424,7 @@
       "skills": [
         "Artificial Intelligence"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Ostrava",
       "company": "Freelance",
       "school": "VŠB-TUO Ostrava"
@@ -44874,7 +44874,7 @@
       "skills": [
         "Machine Learning"
       ],
-      "seniority": "Lead",
+      "seniority": "Junior",
       "location": "Remote",
       "company": null,
       "school": null
@@ -45417,7 +45417,7 @@
       "skills": [
         "Large Language Models"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "Oracle",
       "school": null
@@ -46105,7 +46105,7 @@
         "R",
         "SQL"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "Barclays",
       "school": "Univerzita Karlova"
@@ -46732,7 +46732,7 @@
     },
     {
       "skills": [],
-      "seniority": "Junior",
+      "seniority": "Senior",
       "location": "Remote",
       "company": null,
       "school": "ČVUT v Praze"
@@ -46774,7 +46774,7 @@
         "Machine Learning",
         "SQL"
       ],
-      "seniority": "C-level",
+      "seniority": "Lead",
       "location": "Prague",
       "company": null,
       "school": null
@@ -47039,7 +47039,7 @@
         "Java",
         "Linux"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "Barclays",
       "school": "Univerzita Karlova"
@@ -47080,7 +47080,7 @@
         "Power BI",
         "SQL"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": null,
       "school": null
@@ -47170,7 +47170,7 @@
         "Machine Learning",
         "Natural Language Processing"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Remote",
       "company": null,
       "school": "Univerzita Karlova"
@@ -47662,7 +47662,7 @@
         "Machine Learning",
         "Python"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "Charles University",
       "school": null
@@ -47726,7 +47726,7 @@
         "Python",
         "SQL"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Prague",
       "company": "Barclays",
       "school": "Univerzita Karlova"
@@ -47945,7 +47945,7 @@
       "skills": [
         "Large Language Models"
       ],
-      "seniority": "C-level",
+      "seniority": "Lead",
       "location": "Brno",
       "company": "Yunex Traffic",
       "school": "VUT v Brně"
@@ -48627,7 +48627,7 @@
         "Computer Vision",
         "Machine Learning"
       ],
-      "seniority": "C-level",
+      "seniority": "Lead",
       "location": "Brno",
       "company": "Honeywell",
       "school": "UPOL Olomouc"
@@ -49534,7 +49534,7 @@
         "Artificial Intelligence",
         "PyTorch"
       ],
-      "seniority": "Junior",
+      "seniority": "Senior",
       "location": "Brno",
       "company": "Erste Digital",
       "school": "VUT v Brně"
@@ -51155,7 +51155,7 @@
         "Linux",
         "Machine Learning"
       ],
-      "seniority": "Lead",
+      "seniority": "Senior",
       "location": "Brno",
       "company": "Brno University of Technology",
       "school": "VUT v Brně"
@@ -51860,7 +51860,7 @@
         "R",
         "SQL"
       ],
-      "seniority": "C-level",
+      "seniority": "Senior",
       "location": "Ostrava",
       "company": null,
       "school": "VŠB-TUO Ostrava"
@@ -52382,7 +52382,7 @@
         "SQL",
         "Scikit-Learn"
       ],
-      "seniority": "C-level",
+      "seniority": "Lead",
       "location": "Brno",
       "company": "IBM",
       "school": "Masarykova univerzita"
@@ -52437,7 +52437,7 @@
         "Machine Learning",
         "Python"
       ],
-      "seniority": "Lead",
+      "seniority": "Senior",
       "location": "Brno",
       "company": "Seznam.cz, a.s.",
       "school": null

@@ -696,7 +696,10 @@ let nodesData = [];
 const VIEW = {
   scope: "all",         // 'all' (všechny skills) | 'core' (jen relevance=core_ai)
 };
-const DATASET_FILE = "data.json";
+// Absolutní URL na Railway — Macaly stránka na digitalnihr.cz fetchuje data odsud
+// (CORS hlavička `Access-Control-Allow-Origin: *` je nastavená v server.py).
+// Když appka běží přímo z Railway origin, fetch je same-origin a funguje taky.
+const DATASET_FILE = "https://czech-ai-talent-map-production.up.railway.app/data.json";
 
 const svg = d3.select("#bubbles");
 const tooltip = d3.select("#tooltip");
@@ -722,7 +725,7 @@ async function init() {
 
 // Schema verze — bump když se změní tvar people_vectors / technologies,
 // aby browser nedržel starý JSON v cache (Railway servíruje s max-age=3600).
-const DATA_SCHEMA_VERSION = "v3.1-core-ai-2026-05-25";
+const DATA_SCHEMA_VERSION = "v3.2-seniority-fix-2026-05-25";
 
 async function loadDataset() {
   try {
