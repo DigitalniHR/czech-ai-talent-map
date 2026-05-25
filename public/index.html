@@ -610,7 +610,7 @@
         </div>
       </div>
       <p class="breakdown-note" id="bdNote" hidden>
-        Firmy s méně než 5 lidmi v datasetu jsou skryté pro ochranu identity.
+        Top 10 zaměstnavatelů ve vybrané skupině podle počtu lidí.
       </p>
 
       <!-- CTA „Domluvit konzultaci" dočasně skryté (Boss directive 2026-05-25).
@@ -1333,7 +1333,7 @@ function renderBreakdown(matched) {
   if (emptyHint) emptyHint.hidden = true;
   if (label) label.hidden = false;
 
-  // ── Top zaměstnavatelé (k-anon ≥5 → null pro malé firmy) ──
+  // ── Top zaměstnavatelé (top 10 podle počtu lidí v aktuálním filtru) ──
   const compCounts = new Map();
   let withCompany = 0;
   for (const p of matched) {
@@ -1345,7 +1345,7 @@ function renderBreakdown(matched) {
     .sort((a, b) => b[1] - a[1]).slice(0, 10);
   const compsEl = document.getElementById("bdCompanies");
   if (!topCompanies.length) {
-    compsEl.innerHTML = `<li class="bd-empty">Žádná firma s ≥5 lidmi v této skupině.</li>`;
+    compsEl.innerHTML = `<li class="bd-empty">Žádná firma v této skupině.</li>`;
   } else {
     compsEl.innerHTML = topCompanies.map(([name, n]) =>
       `<li><span class="bd-name">${escapeHtml(name)}</span><span class="bd-count">${CZ_NUM.format(n)}</span></li>`
