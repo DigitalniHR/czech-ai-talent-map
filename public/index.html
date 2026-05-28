@@ -224,6 +224,31 @@
   /* Canvas */
   .canvas-wrap { flex: 1; position: relative; min-width: 0; }
   svg.bubbles { width: 100%; height: 100%; display: block; cursor: default; }
+  .canvas-loader {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; gap: 18px;
+    align-items: center; justify-content: center;
+    background: var(--bg);
+    z-index: 50;
+    transition: opacity .25s ease;
+  }
+  .canvas-loader.hidden { opacity: 0; pointer-events: none; }
+  .canvas-loader__spinner {
+    width: 52px; height: 52px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: cl-spin 1s linear infinite;
+  }
+  .canvas-loader__text {
+    color: var(--text); font-size: 15px; font-weight: 500;
+    text-align: center; padding: 0 24px;
+  }
+  .canvas-loader__sub {
+    color: var(--muted); font-size: 13px;
+    text-align: center; padding: 0 24px; max-width: 360px;
+  }
+  @keyframes cl-spin { to { transform: rotate(360deg); } }
   .tooltip {
     position: absolute; pointer-events: none;
     background: var(--surface); border: 1px solid var(--border);
@@ -557,6 +582,11 @@
       <svg class="bubbles" id="bubbles" aria-label="Mapa technologií jako bublin"></svg>
       <div class="tooltip" id="tooltip"></div>
       <div class="hint" id="hint">Klikni na bublinu pro detail technologie</div>
+      <div class="canvas-loader" id="canvasLoader" role="status" aria-live="polite">
+        <div class="canvas-loader__spinner" aria-hidden="true"></div>
+        <div class="canvas-loader__text">Načítáme mapu AI talentů v ČR…</div>
+        <div class="canvas-loader__sub">Zpracováváme tisíce profilů, ať uvidíš relevantní bubliny.</div>
+      </div>
     </div>
 
     <!-- Calculator (hidden by default) -->
@@ -610,7 +640,7 @@
         </div>
       </div>
       <p class="breakdown-note" id="bdNote" hidden>
-        Firmy s méně než 5 lidmi v datasetu jsou skryté pro ochranu identity.
+        Top 10 zaměstnavatelů ve vybrané skupině podle počtu lidí.
       </p>
 
       <!-- CTA „Domluvit konzultaci" dočasně skryté (Boss directive 2026-05-25).
@@ -689,6 +719,8 @@ let DATA = null;
 let TECH_BY_ID = new Map();
 // COOC_INDEX zaniká — co-occurrence se počítá live v currentView.cooc
 let selectedTechId = null;
+let currentPartnerMap = null;
+let currentCohort = 0;
 let simulation = null;
 let nodesData = [];
 
@@ -737,6 +769,7 @@ async function loadDataset() {
   }
   TECH_BY_ID = new Map(DATA.technologies.map(t => [t.id, t]));
   recomputeView();   // live aggregation z DATA.people_vectors
+  document.getElementById("canvasLoader")?.classList.add("hidden");
   document.getElementById("headerStats").innerHTML =
     `<b>${CZ_NUM.format(DATA.stats.total_professionals)}</b> profesionálů · <b>${CZ_NUM.format(DATA.stats.total_companies)}</b> firem`;
   // Footer: human-readable info pro laika (datum + počet + zdroj). Geek detaily
@@ -954,6 +987,8 @@ function selectTech(id) {
   // nižší absolutní threshold (jinak většina mapy zmizí); relativně držíme
   // alespoň 5 % vybrané kohorty, ale nikdy ne víc než 15 a ne méně než 3.
   const { partners: partnerMap, cohort } = computeRealCooccurrence(id);
+  currentPartnerMap = partnerMap;
+  currentCohort = cohort;
   const threshold = Math.max(3, Math.min(15, Math.ceil(cohort * 0.05)));
   const maxShared = Math.max(...partnerMap.values(), 1);
 
@@ -1022,6 +1057,8 @@ function selectTech(id) {
 function exitConstellation() {
   if (!selectedTechId) return;
   selectedTechId = null;
+  currentPartnerMap = null;
+  currentCohort = 0;
   // Vrátit velikosti na originální (free map mode)
   nodesData.forEach(n => {
     n.r_active = n.r_base;
@@ -1053,8 +1090,19 @@ function exitConstellation() {
 // ------------------------------------------------------------------
 function showTooltip(e, d) {
   const meta = (d.relevance === "core_ai") ? "core AI" : (d.relevance || "");
+  // V constellation modu doplnit sdílení s pivotem — bublina je sized podle
+  // shared/cohort, ne podle count. Bez tohoto kontextu vypadá menší skill
+  // (vyšší overlap) větší než větší skill (nižší overlap) → mismatch s tooltipem.
+  let sharedLine = "";
+  if (selectedTechId && selectedTechId !== d.id && currentPartnerMap) {
+    const shared = currentPartnerMap.get(d.id) || 0;
+    if (shared > 0) {
+      const pct = currentCohort > 0 ? Math.round((shared / currentCohort) * 100) : 0;
+      sharedLine = `<div class="meta">${CZ_NUM.format(shared)} sdílí s ${selectedTechId} (${pct} %)</div>`;
+    }
+  }
   tooltip.html(`<div class="name">${d.id}</div>
-    <div class="meta">${CZ_NUM.format(d.count)} profesionálů${meta ? " · " + meta : ""}</div>`)
+    <div class="meta">${CZ_NUM.format(d.count)} profesionálů${meta ? " · " + meta : ""}</div>${sharedLine}`)
     .classed("show", true);
   moveTooltip(e);
 }
@@ -1333,7 +1381,7 @@ function renderBreakdown(matched) {
   if (emptyHint) emptyHint.hidden = true;
   if (label) label.hidden = false;
 
-  // ── Top zaměstnavatelé (k-anon ≥5 → null pro malé firmy) ──
+  // ── Top zaměstnavatelé (top 10 podle počtu lidí v aktuálním filtru) ──
   const compCounts = new Map();
   let withCompany = 0;
   for (const p of matched) {
@@ -1345,7 +1393,7 @@ function renderBreakdown(matched) {
     .sort((a, b) => b[1] - a[1]).slice(0, 10);
   const compsEl = document.getElementById("bdCompanies");
   if (!topCompanies.length) {
-    compsEl.innerHTML = `<li class="bd-empty">Žádná firma s ≥5 lidmi v této skupině.</li>`;
+    compsEl.innerHTML = `<li class="bd-empty">Žádná firma v této skupině.</li>`;
   } else {
     compsEl.innerHTML = topCompanies.map(([name, n]) =>
       `<li><span class="bd-name">${escapeHtml(name)}</span><span class="bd-count">${CZ_NUM.format(n)}</span></li>`
